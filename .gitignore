@@ -1,0 +1,12 @@
+# Python cache files
+__pycache__/
+*.pyc
+
+# Environment variables file
+.env
+
+# Egg info
+*.egg-info/
+
+# Data directory
+/data/

@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "umcp"
+version = "0.1.0"
+description = "Generative Collapse Dynamics — UMCP invariants, regime diagnostics, and audit CLI"
+authors = [{name = "Your Name"}]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.25",
+    "pandas>=2.0",
+    "matplotlib>=3.7",
+    "pydantic>=2.7",
+    "click>=8.1",
+    "rich>=13.7",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "flake8>=6", "black>=24", "ruff>=0.4"]
+
+[project.scripts]
+umcp = "umcp.cli:app"
+
+[tool.black]
+line-length = 100
+
+[tool.flake8]
+max-line-length = 100
+ignore = ["E203","W503"]
+
+[tool.ruff]
+line-length = 100

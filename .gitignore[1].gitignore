@@ -1,0 +1,22 @@
+# Environments
+.venv/
+.env
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Artifacts
+artifacts/
+reports/
+.coverage
+htmlcov/
+*.png
+*.pdf
+
+# Notebooks
+.ipynb_checkpoints/
+
+# OS
+.DS_Store

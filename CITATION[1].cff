@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: "GCD • UMCP • RCFT • ULRC — Starter Repository"
+message: "Please cite this software if it helped your research."
+authors:
+  - name: "Your Name"
+    orcid: "0000-0000-0000-0000"
+license: MIT
+version: "0.1.0"
+date-released: "2025-09-19"
+repository-code: "https://github.com/your-org/your-repo"

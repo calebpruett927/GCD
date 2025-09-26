@@ -1,0 +1,163 @@
+\section{Core Invariants (symbols)}
+\label{sec:glossary-core}
+\begin{table}[H]
+  \centering
+  \caption{Core invariants (dimensionless unless noted).}
+  \label{tab:glossary-core}
+  \footnotesize
+  \begingroup\setlength{\tabcolsep}{6pt}
+  \begin{tabularx}{\linewidth}{@{} l l >{\raggedright\arraybackslash}X @{}}
+    \toprule
+    Symbol & Name & Definition (short) \\
+    \midrule
+    $\omega$      & drift        & normalized step change on the frozen anchor \\
+    $F$           & fidelity     & $1-\omega$ \\
+    $S$           & entropy proxy& coding/description penalty on the slice \\
+    $C$           & curvature    & local sharpness/brittleness proxy \\
+    $\tau_{R}$    & return delay & steps to re-enter baseline band (unit declared in captions) \\
+    $\mathrm{IC}$ & integrity    & $F\,e^{-S}(1-\omega)\exp\!\big(-\alpha C/(1+\tau_R)\big)$ \\
+    $\kappa$      & log-integrity& $\ln(\mathrm{IC})$ \\
+    \bottomrule
+  \end{tabularx}
+  \endgroup
+\end{table}
+
+\section{Budget \& Ledger Fields}
+\label{sec:glossary-budget}
+\begin{table}[H]
+  \centering
+  \caption{First-Law terms and CSV/ledger columns.}
+  \label{tab:glossary-budget}
+  \footnotesize
+  \begingroup\setlength{\tabcolsep}{6pt}
+  \begin{tabularx}{\linewidth}{@{} l l >{\raggedright\arraybackslash}X @{}}
+    \toprule
+    Token & Column & Meaning \\
+    \midrule
+    $\Delta\kappa$ & \texttt{deltaKappa} & log-integrity change on the interval \\
+    $D_{\omega}$   & \texttt{Domega}     & drift debit (cost) \\
+    $D_{C}$        & \texttt{DC}         & curvature debit (cost) \\
+    $R\tau_{R}$    & \texttt{RtauR}      & return credit (work-like) \\
+    $\min\mathrm{IC}$ & \texttt{minIC}   & minimum integrity over the interval \\
+    $\tau_{R}$     & \texttt{tauR}       & return delay (steps) \\
+    residual       & \texttt{residual}   & $\Delta\kappa - [R\tau_R-(D_\omega+D_C)]$ (target $0$) \\
+    regime         & \texttt{regime}     & Stable/Watch/Collapse (+Critical) \\
+    weld id        & \texttt{weld\_id}   & governed change identifier \\
+    manifest hash  & \texttt{manifest}   & bundle SHA-256 (hex) \\
+    \bottomrule
+  \end{tabularx}
+  \endgroup
+\end{table}
+
+\section{Regimes, Predicates, Joins}
+\label{sec:glossary-regimes}
+\begin{table}[H]
+  \centering
+  \caption{Regime labels (defaults) and rules.}
+  \label{tab:glossary-regimes}
+  \footnotesize
+  \begingroup\setlength{\tabcolsep}{6pt}
+  \begin{tabularx}{\linewidth}{@{} l >{\raggedright\arraybackslash}X @{}}
+    \toprule
+    Item & Spec \\
+    \midrule
+    Stable   & $\omega<0.038,\ F>0.90,\ S<0.15,\ C<0.14$ \\
+    Watch    & $0.038\le \omega \le 0.30$ \\
+    Collapse & $\omega\ge 0.30$ \\
+    Critical overlay & additionally mark if $\min\mathrm{IC}<0.30$ \\
+    Join rule & worst-of across channels; tie-break by larger $\mathrm{IC}$ \\
+    Near-wall & $\mathrm{IC}\sim(1-\omega)^3$ (drift dominates) \\
+    \bottomrule
+  \end{tabularx}
+  \endgroup
+\end{table}
+
+\section{Normalization, Faces, Typed Outcomes}
+\label{sec:glossary-faces}
+\begin{table}[H]
+  \centering
+  \caption{Normalization/face policy and typed edges.}
+  \label{tab:glossary-faces}
+  \footnotesize
+  \begingroup\setlength{\tabcolsep}{6pt}
+  \begin{tabularx}{\linewidth}{@{} l >{\raggedright\arraybackslash}X @{}}
+    \toprule
+    Term & Brief \\
+    \midrule
+    Affine normalization & $y=(x-a)/b,\ b>0$; defaults $(a,b)=(0,1)$ \\
+    Face policy          & \texttt{pre\_clip}; pivot to \texttt{post\_clip+guard} near walls ($\varepsilon=10^{-8}$) \\
+    Typed outcomes       & $\bot\!\mathrm{oor}$ (out-of-domain), $\infty_{\mathrm{rec}}$ (division-by-zero) \\
+    \bottomrule
+  \end{tabularx}
+  \endgroup
+\end{table}
+
+\section{Governance \& Welds}
+\label{sec:glossary-weld}
+\begin{table}[h]
+  \centering
+  \caption{Governed change and reproducibility nouns.}
+  \label{tab:glossary-weld}
+  \footnotesize
+  \begingroup\setlength{\tabcolsep}{6pt}
+  \begin{tabularx}{\linewidth}{@{} l >{\raggedright\arraybackslash}X @{}}
+    \toprule
+    Term & Brief \\
+    \midrule
+    Weld (governed change) & Revision with same-anchor pre/post tests; $\kappa$-continuity enforced; \texttt{weld\_id} recorded \\
+    Anchor                  & The fixed context a weld tests against (same facts/slice) \\
+    Caption keys            & Contract $(a,b,\varepsilon,p,\alpha)$, face policy, residual, regime, \texttt{weld\_id}, manifest \\
+    Manifest                & Bundle file list with per-file SHA-256 and root hash (Appendix~\ref{apx:manifest}) \\
+    Root hash               & SHA-256 of sorted \verb|path\0sha256\n| lines \\
+    TIP                     & Tiered Invariance Principle (identities preserved across tiers) \\
+    \bottomrule
+  \end{tabularx}
+  \endgroup
+\end{table}
+
+\section{Methods \& Operators}
+\label{sec:glossary-methods}
+\begin{table}[H]
+  \centering
+  \caption{Operators and modeling aids (as used).}
+  \label{tab:glossary-methods}
+  \footnotesize
+  \begingroup\setlength{\tabcolsep}{6pt}
+  \begin{tabularx}{\linewidth}{@{} l l >{\raggedright\arraybackslash}X @{}}
+    \toprule
+    Token & Type & Brief \\
+    \midrule
+    $\clip(\cdot)$ & op & clipping operator (face policy dependent) \\
+    $\EMA$         & op & exponential moving average \\
+    $\MAD$         & op & median absolute deviation \\
+    $\Gamma(\omega;\varepsilon)$ & coeff & face coefficient $2/(1-\omega)-1/(1-\omega+\varepsilon)$ \\
+    CTMC $\mathbf{Q}$ & model & generator (column convention); $\mathbf{1}^\top \mathbf{Q}=\mathbf{0}^\top$ \\
+    Residual & scalar & First-Law closure check (target $0$ within tolerance) \\
+    \bottomrule
+  \end{tabularx}
+  \endgroup
+\end{table}
+
+\section{Domains, Acronyms, Identifiers}
+\label{sec:glossary-acro}
+\begin{table}[H]
+  \centering
+  \caption{Acronyms and external identifiers.}
+  \label{tab:glossary-acro}
+  \footnotesize
+  \begingroup\setlength{\tabcolsep}{6pt}
+  \begin{tabularx}{\linewidth}{@{} l >{\raggedright\arraybackslash}X @{}}
+    \toprule
+    Token & Expansion / Note \\
+    \midrule
+    UMCP & Universal Mathematics \& Collapse Platform \\
+    GCD  & Generative Collapse Dynamics \\
+    RCFT & Recursive Collapse Field Theory (working theory) \\
+    ULRC & Unified Language of Recursive Collapse (governance layer) \\
+    CTMC & Continuous-Time Markov Chain \\
+    DOI  & Digital Object Identifier \\
+    ORCID & Open Researcher and Contributor ID \\
+    \bottomrule
+  \end{tabularx}
+  \endgroup
+\end{table}

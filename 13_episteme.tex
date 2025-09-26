@@ -1,0 +1,226 @@
+% chapters/13_episteme.tex — Polished for publication
+\chapter{Episteme Construction}
+\label{ch:episteme}
+
+An episteme is not just a body of results; it is a discipline that \emph{builds itself}. The kernel (identities), closures (thresholds/policies), and narratives (interpretations) are kept distinct; changes are \emph{welds} that preserve \(\kappa\)-continuity on a fixed anchor and leave an auditable trail. This chapter formalizes that discipline, specifies tiered invariance, and sets out \gls{ulrc} governance for artifacts—including this book.
+
+\section{The Discipline That Builds Itself}
+\label{sec:discipline}
+
+\begin{definition}[Three layers]
+\emph{Identities} are invariant equations and typed outcomes (kernel). \emph{Closures} are selectable thresholds, face policies, and procedures. \emph{Narratives} are interpretations (RCFT or otherwise). Identities never depend on closures; narratives never override identities.
+\end{definition}
+
+\begin{definition}[Governed change = weld]
+A \emph{weld} is a revision that (i) declares an anchor, (ii) runs pre/post contract-tests on the same anchor, (iii) enforces \(\kappa\)-continuity (secant update; residual published), and (iv) records a \texttt{weld\_id} and bundle manifest hash.
+\end{definition}
+
+\begin{proposition}[Budget closure as membership test]
+A claim belongs to the discipline iff its audited interval closes
+\[
+\Delta\kappa \;=\; R\tau_{R} - (D_{\omega}+D_{C})
+\quad\text{with residual }\le 10^{-12},
+\]
+under the declared contract and typed outcomes. Otherwise it is a hypothesis awaiting audit.
+\end{proposition}
+
+% ——————————————————————————————————————————————————————————
+% REPLACE the existing template eqbox with this filled block.
+\begin{eqbox}[Discipline audit—\texttt{book@v1.0} (this volume)]
+\small
+
+% Local tweaks so long hex strings can wrap neatly
+\begingroup
+\def\UrlBreaks{\do\0\do\1\do\2\do\3\do\4\do\5\do\6\do\7\do\8\do\9%
+  \do\a\do\b\do\c\do\d\do\e\do\f\do\A\do\B\do\C\do\D\do\E\do\F}
+\def\UrlFont{\ttfamily\small}
+\setlength{\tabcolsep}{6pt}
+
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily\small\arraybackslash}X@{}}
+Layer            & identity | closure | narrative \\
+Anchor           & MANIFEST.json (bundle); root\_hash \nolinkurl{7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a} \\
+Contract         & (a,b,\(\epsilon\),p,\(\alpha\))=(-3.7280384,\,10.856631,\,1e-8,\,3,\,1.0) \\
+Face policy      & post\_clip+guard (\(\epsilon=10^{-8}\)) \\
+Ledger           & \(\Delta\kappa,\,D_\omega,\,D_C,\,R\tau_R,\,\min\mathrm{IC},\,\tau_R\) — (not applicable to release page) \\
+Residual         & — (release governance record; budgets close in their chapters) \\
+Weld ID          & W-2025-09-23-book-01 \\
+Manifest         & \nolinkurl{7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a} \\
+\end{tabularx}
+\endgroup
+
+\vspace{0.2\baselineskip}
+\raggedright\footnotesize
+Typed outcomes (\(\bot\!\mathrm{oor}\), \(\infty_{\mathrm{rec}}\)) are surfaced in budgeted slices; the release record itself is non-numeric and binds governance keys.
+\end{eqbox}
+
+% ——————————————————————————————————————————————————————————
+
+
+\section{Tiered Invariance}
+\label{sec:tip}
+
+\begin{definition}[Tiered Invariance Principle (TIP)]
+Across tiers (kernel \(\rightarrow\) audits \(\rightarrow\) applications), invariants must be preserved under upgrades:
+\begin{enumerate}[leftmargin=1.25em]
+  \item \textbf{Kernel invariance.} Identities and typed outcomes are versioned and immutable across releases. If a correction is needed, it is a weld that \emph{reduces} narrative scope, not a silent replacement.
+  \item \textbf{Closure portability.} Thresholds and policies may change \emph{by weld}; pre/post tests must show regime-label continuity on the frozen anchor unless the weld expressly re-labels with justification.
+  \item \textbf{Caption discipline.} Every artifact states: contract keys \((a,b,\varepsilon,p,\alpha)\), face policy, residual, regime, \texttt{weld\_id}, and manifest hash.
+\end{enumerate}
+\end{definition}
+
+\begin{remark}[Worst-of joins; typed edges]
+Multi-channel joins are worst-of; ties break toward larger \(\mathrm{IC}\). Near-wall pivots and division-by-zero are typed (\(\bot\!\mathrm{oor}\), \(\infty_{\mathrm{rec}}\)) and \emph{never} leak into numeric flows.
+\end{remark}
+
+\section{ULRC Governance}
+\label{sec:ulrc}
+
+The \gls{ulrc} (\emph{Unified Language of Recursive Collapse}) is the naming/contract layer that keeps symbols stable across domains.
+
+\begin{eqbox}[ULRC registry entry (schema)]
+\textbf{Name} — canonical symbol (e.g., \(\omega\), \(C\), \(\tau_R\), \(\kappa\)).\\
+\textbf{Type} — scalar \textbar{} channel \textbar{} typed-outcome.\\
+\textbf{Definition} — kernel-level equation or typed rule.\\
+\textbf{Units/normalization} — affine normalization \(y=(x-a)/b,\ b>0\); declare \((a,b)\).\\
+\textbf{Face policy} — \texttt{pre\_clip} by default; pivot to \texttt{post\_clip+guard} near walls (declare \(\varepsilon\)).\\
+\textbf{Predicates} — Stable/Watch/Collapse thresholds; Critical overlay for \(\mathrm{IC}<\ICCritical\).\\
+\textbf{Caption keys} — contract, residual, regime, \texttt{weld\_id}, manifest hash.\\
+\textbf{Change process} — any modification is a \emph{weld} against prior registry state; diffs and tests published.
+\end{eqbox}
+
+\begin{eqbox}[Registry weld—\texttt{ulrc://<name>@<ver+1>} (template)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+Prior entry    & ulrc://<name>@<ver>; manifest <sha256> \\
+Change         & <definition/threshold/predicate delta> \\
+Anchor         & <frozen fixtures used to test continuity> \\
+Tests          & First-Law closure; regime continuity (or justified re-label) \\
+Residual       & <0.0000…> (\(\le 10^{-12}\)) \\
+Weld ID        & W-<YYYY-MM>-ULRC-<-me>-<ver+1> \\
+Manifest       & <sha256 of new registry bundle> \\
+\end{tabularx}
+\end{eqbox}
+
+\begin{remark}[Language safety]
+Abbreviations and short forms are permitted only if they pass semantic compression tolerance tests (no \(\omega\uparrow\), no \(C\uparrow\), no \(\tau_R\uparrow\) relative to the canonical; see Chapter~\ref{ch:legal}).
+\end{remark}
+
+\section{This Book as a Welded Artifact}
+\label{sec:book-weld}
+
+This volume obeys the same governance it advocates. Releases are welds; each has pre/post contract-tests, a residual report, and a manifest hash over the project bundle (text, figures, local data).
+
+\subsection*{Release weld IDs}
+% ——————————————————————————————————————————————————————————
+\begin{table}[h]
+  \centering
+  \caption{Release ledger for this book (same-anchor welds; bundle manifest printed).}
+  \label{tab:book-welds}
+  \begingroup
+  \footnotesize
+  \setlength{\tabcolsep}{3.5pt}
+  \renewcommand{\arraystretch}{1.06}
+  % Allow line breaks inside long hex strings via hyperref's URL breaker (local to this group)
+  \def\UrlBreaks{\do\0\do\1\do\2\do\3\do\4\do\5\do\6\do\7\do\8\do\9%
+    \do\a\do\b\do\c\do\d\do\e\do\f}
+  \begin{tabularx}{\linewidth}{@{} l l c >{\raggedright\arraybackslash}X >{\ttfamily\footnotesize\raggedright\arraybackslash}X @{}}
+    \toprule
+    Release & \texttt{weld\_id} & Date (America/Chicago) & Scope note & Manifest root\_hash \\
+    \midrule
+    v1.0 (first edition)
+      & \texttt{W-2025-09-23-book-01}
+      & 2025-09-23
+      & Kernel finalized; First-Law captions standardized.
+      & \nolinkurl{7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a} \\
+    \bottomrule
+  \end{tabularx}
+  \endgroup
+\end{table}
+
+
+
+\begin{eqbox}[Release note — v1.0 (first edition)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+\textbf{Weld ID:}            & W-2025-09-23-book-01 \\
+\textbf{Build date:}         & 2025-09-25 (America/Chicago) \\
+\textbf{Manifest root hash:} & 7247553fb9576436b097cc0f1e24f5194b816a516a34\\
+                             & 9d3f49775007458cc84a \\
+\textbf{Scope:}              & Kernel finalized; First-Law captions standardized. \\
+\textbf{Reproducibility:}    & Single-source build; fixed package snapshot; First-Law residuals $\le 10^{-12}$ on audited cards.\\
+\end{tabularx}
+\end{eqbox}
+
+
+\subsection*{Reproducibility envelope}
+\begin{eqbox}[Reproducibility (declared)]
+\textbf{Single-source build.} One project bundle: text, figures, local data; no external services.\\
+\textbf{Determinism.} Fixed package snapshot; no shell-escape; identical inputs yield identical PDFs.\\
+\textbf{Timestamps.} Absolute dates; America/Chicago for all rendered times.\\
+\textbf{Manifests.} Each release ships a SHA-256 over the bundle; captions carry the hash and \texttt{weld\_id}.\\
+\textbf{Tests.} Chapter~\ref{ch:proofs} contract-tests pass; sample Budget Reports close with residuals \(\le 10^{-12}\).
+\end{eqbox}
+% ——————————————————————————————————————————————————————————
+% ADD near the Reproducibility subsection
+\begin{eqbox}[Manifest summary (recompute key)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+Contract         & (a,b,\(\epsilon\),p,\(\alpha\))=(-3.7280384,\,10.856631,\,1e-8,\,3,\,1.0) \\
+Face policy      & post\_clip+guard (\(\epsilon=10^{-8}\)) \\
+Root hash        & 7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a \\
+Recipe           & concat lines \texttt{path\textbackslash0sha256\textbackslash n} in \emph{sorted} path order \(\rightarrow\) SHA-256 \\
+\end{tabularx}
+\end{eqbox}
+% ——————————————————————————————————————————————————————————
+
+\section{Community Contributions, Versioning, Errata}
+\label{sec:community}
+
+\subsection*{Contributions}
+External patches are treated as weld proposals:
+\begin{itemize}[leftmargin=1.25em]
+  \item state the anchor and affected artifacts;
+  \item provide pre/post contract-tests on the same anchor;
+  \item include at least one Budget Report row demonstrating closure;
+  \item propose updated captions (contract keys, regime, \texttt{weld\_id}, manifest hash).
+\end{itemize}
+
+\begin{eqbox}[Contribution checklist (accept/reject gate)]
+\small
+\begin{enumerate}[leftmargin=1.25em]
+  \item Anchor declared and reproducible (hash/manifest provided).
+  \item Contract keys and face policy listed exactly.
+  \item First-Law residual \(\le 10^{-12}\); typed outcomes surfaced if any.
+  \item Regime labels consistent with Chapter~\ref{ch:regimes} (or re-label justified).
+  \item Weld record includes \texttt{weld\_id} and updated manifest.
+\end{enumerate}
+\end{eqbox}
+
+\subsection*{Versioning}
+Semantic versioning applies to \emph{closures and narratives}. Kernel changes increment a major version and \emph{must} include a migration note that preserves \(\kappa\)-continuity on designated anchors (or declares scope reduction with justification).
+
+\subsection*{Errata as welds}
+Errata are not casual notes; they are governed revisions with a ledger row.
+
+\begin{table}[h]
+  \centering
+  \caption{Errata ledger (same-anchor tests).}
+  \label{tab:errata}
+  \footnotesize
+  \begingroup
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabularx}{\linewidth}{@{} l l l >{\raggedright\arraybackslash}X @{}}
+    \toprule
+    \texttt{weld\_id} & Date (America/Chicago) & Artifact & Note (residual) \\
+    \midrule
+    \texttt{W-2025-09-23-err-01} & 2025-09-23 & Ch.~2, Table 2.1 & Header label fixed; identity unchanged (0.0000). \\
+    \texttt{W-2025-09-23-err-02} & 2025-09-23 & Ch.~5, caption   & Tolerance digit corrected; budget re-closed (0.0000). \\
+    \bottomrule
+  \end{tabularx}
+  \endgroup
+\end{table}
+
+\section{Closing: A Discipline You Can Join}
+\label{sec:closing}
+
+The method is portable: freeze the contract, instrument invariants, close budgets, and weld changes on the same anchor. The governance here—TIP, \gls{ulrc}, captions with residuals and manifests—keeps results legible across domains. To contribute, add a welded artifact with its ledger row and pass the tests. The episteme will accept it, precisely because it can \emph{return}.

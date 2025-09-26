@@ -1,0 +1,165 @@
+% chapters/A_notation.tex
+\chapter{Notation \& Units}
+\label{apx:notation}
+
+This appendix fixes symbols, units, and conventions used throughout the book. Identities (kernel) are collected for quick reference; closures (thresholds, policies) and caption keys are specified so audits remain portable and unambiguous.
+
+\section{Normalization, Faces, and Typed Outcomes}
+\label{apx:normalization}
+\paragraph{Affine normalization.}
+All raw scalars \(x\) are normalized slice-wise by
+\[
+  y=\frac{x-a}{b},\qquad b>0,
+\]
+with defaults \((a,b)=(0,1)\) unless stated. Under an affine change \(x'=\alpha x+\beta\) with \(\alpha>0\), updating \((a,b)\to(a',b')=(\alpha a+\beta,\alpha b)\) preserves \(y\) and any regime labels on the frozen slice.
+
+\paragraph{Face policy.}
+Default \texttt{pre\_clip}; near walls pivot to \texttt{post\_clip+guard} with guard \(\varepsilon=10^{-8}\). Pivots are logged in captions.
+
+\paragraph{Typed outcomes.}
+Out-of-domain access is \(\bot\!\mathrm{oor}\); division-by-zero is \(\infty_{\mathrm{rec}}\). Typed results are logged and never cast to ordinary numbers.
+
+\section{Kernel Invariants and Derived Quantities}
+\label{apx:invariants}
+We freeze the invariant spine
+\[
+  \{\ \drift,\ \fidelity{=}1{-}\drift,\ \entropy,\ \curvature,\ \reentry,\ \integrity,\ \kappaVar{=}\ln\integrity\ \}.
+\]
+The canonical composite integrity and log-integrity (Part~I) are
+\[
+\integrity \;=\; \fidelity\,e^{-\entropy}(1-\drift)\,
+\exp\!\left(-\alphaParam \frac{\curvature}{1+\reentry}\right),
+\qquad
+\kappaVar \;=\; \ln \integrity.
+\]
+Sensitivities used across audits:
+\[
+\frac{\partial \kappaVar}{\partial \curvature}=-\frac{\alphaParam}{1+\reentry},\qquad
+\frac{\partial \kappaVar}{\partial \reentry}= \frac{\alphaParam \curvature}{(1+\reentry)^2},\qquad
+\frac{\partial \kappaVar}{\partial \drift}= -\facecoef(\drift;\epsParam),
+\]
+with the face coefficient
+\[
+\facecoef(\drift;\epsParam)\coloneqq \frac{2}{1-\drift}-\frac{1}{1-\drift+\epsParam}.
+\]
+
+\section{Budget Identity and Columns}
+\label{apx:budget}
+The First Law (audited per interval) closes within tolerance \(10^{-12}\):
+\[
+  \Delta \kappaVar \stackrel{!}{=} R\,\reentry \;-\; \bigl(D_{\drift}+D_{\curvature}\bigr).
+\]
+Canonical Budget Report columns:
+\[
+\{\ \Delta\kappaVar,\ D_{\drift},\ D_{\curvature},\ R\reentry,\ \min\integrity,\ \reentry,\ \text{Weld ID}\ \}.
+\]
+Residual reported as
+\[
+\text{residual} \;=\; \Delta \kappaVar - \bigl[R\reentry-(D_{\drift}+D_{\curvature})\bigr].
+\]
+
+\section{Regime Predicates and Joins}
+\label{apx:regimes}
+Default predicates (worst-of aggregation; tie-break by larger \(\integrity\)):
+\begin{itemize}[leftmargin=1.25em]
+  \item \textbf{Stable:} \(\drift<0.038,\ \fidelity>0.90,\ \entropy<0.15,\ \curvature<0.14\).
+  \item \textbf{Watch:} \(0.038\le \drift \le 0.30\).
+  \item \textbf{Collapse:} \(\drift\ge 0.30\).
+  \item \textbf{Critical overlay:} additionally mark if \(\min\integrity<0.30\).
+\end{itemize}
+Near the drift wall, \(\integrity\sim(1-\drift)^3\); cubic fall dominates design choices.
+
+\section{Units and Dimensional Conventions}
+\label{apx:units}
+Unless explicitly stated, all invariants are dimensionless. When physical units appear in a constructor field (e.g., Chapter~\ref{ch:physics}):
+\begin{itemize}[leftmargin=1.25em]
+  \item \(\reentry\) is reported in the native step unit of the audit (e.g., seconds, iterations, epochs); the unit is declared in the caption.
+  \item Raw observables (e.g., position, field amplitude) may carry units; normalization absorbs them into \(y\) so that the kernel acts on dimensionless slices.
+  \item Rates \(R\) carry inverse units of \(\reentry\) so that \(R\,\reentry\) is dimensionless.
+\end{itemize}
+Timestamps in captions use absolute dates in America/Chicago.
+
+\section{Rotation/Anisotropy Channels (if used)}
+\label{apx:rotation}
+For angular/attitude signals, declare the manifold \(M\in\{S^1,\ \mathrm{RP}^1,\ S^2,\ \mathrm{RP}^2,\ \mathrm{SO}(3)\}\). Define the geodesic step
+\[
+\delta_t \;=\; \frac{d_M(x_t,x_{t-1})}{D_M},
+\]
+and use \(\delta_t\) as the drift channel \(\drift\) for that signal. Curvature and return measures on \(M\) use the same geodesic metric. Multi-channel joins are worst-of.
+
+\section{Stochastic/Temporal Processes (if used)}
+\label{apx:ctmc}
+Regime flow may be modeled by a CTMC with generator \(\Qgen\) in the column convention:
+\[
+\dot{\regvec}(t) = \Qgen(t)\,\regvec(t),\qquad \onevec^\top \Qgen(t)=\mathbf{0}^\top,\quad q_{ij}\ge 0\ (i\ne j).
+\]
+\(\Qgen\) is a closure (application-layer choice) and does not alter kernel identities.
+
+\section{Caption Keys (Mandatory)}
+\label{apx:captions}
+Every audited artifact (figure or table) declares:
+\begin{itemize}[leftmargin=1.25em]
+  \item contract keys \((a,b,\varepsilon,p,\alpha)\) and face policy;
+  \item First-Law residual and regime label (with \(\min\integrity\) if used);
+  \item \texttt{weld\_id} and a manifest hash (bundle-level).
+\end{itemize}
+
+\section{Compact Symbol Tables}
+\label{apx:tables}
+\begin{table}[h]
+  \centering
+  \caption{Core symbols (dimensionless unless noted).}
+  \label{tab:notation-core}
+  \footnotesize
+  \begingroup\setlength{\tabcolsep}{6pt}
+  \begin{tabularx}{\linewidth}{@{} l l l >{\raggedright\arraybackslash}X @{}}
+    \toprule
+    Symbol & Name & Range/Unit & Brief definition \\
+    \midrule
+    \(\drift\)     & drift & \([0,1]\) & normalized step-to-step change on anchor \\
+    \(\fidelity\)  & fidelity & \([0,1]\) & \(1-\drift\) \\
+    \(\entropy\)   & entropy proxy & \(\mathbb{R}_{\ge 0}\) & contract-level coding penalty on slice \\
+    \(\curvature\) & curvature & \(\mathbb{R}_{\ge 0}\) & local sharpness/brittleness proxy \\
+    \(\reentry\)   & return delay & steps (declared) & steps to re-attain baseline band \\
+    \(\integrity\) & composite integrity & \((0,1]\) & \(\fidelity e^{-\entropy}(1-\drift)\exp(-\alphaParam\curvature/(1+\reentry))\) \\
+    \(\kappaVar\)  & log-integrity & \(\mathbb{R}\) & \(\ln \integrity\) \\
+    \(\facecoef\)  & face coefficient & — & \(2/(1-\drift)-1/(1-\drift+\epsParam)\) \\
+    \bottomrule
+  \end{tabularx}
+  \endgroup
+\end{table}
+
+\begin{table}[h]
+  \centering
+  \caption{Predicates, joins, and tolerances.}
+  \label{tab:notation-predicates}
+  \footnotesize
+  \begingroup\setlength{\tabcolsep}{6pt}
+  \begin{tabularx}{\linewidth}{@{} l >{\raggedright\arraybackslash}X @{}}
+    \toprule
+    Item & Specification \\
+    \midrule
+    Stable & \(\drift<0.038,\ \fidelity>0.90,\ \entropy<0.15,\ \curvature<0.14\) \\
+    Watch & \(0.038\le \drift \le 0.30\) \\
+    Collapse & \(\drift\ge 0.30\) \\
+    Critical overlay & apply if \(\min\integrity<0.30\) \\
+    Join rule & worst-of across channels; tie-break by larger \(\integrity\) \\
+    Tolerance & First-Law residual \(\le 10^{-12}\) (unless otherwise declared) \\
+    Typed edges & \(\bot\!\mathrm{oor}\) and \(\infty_{\mathrm{rec}}\) logged; no numeric leak \\
+    \bottomrule
+  \end{tabularx}
+  \endgroup
+\end{table}
+
+\section{Minimal Worked Caption Template}
+\label{apx:caption-template}
+Use the following short form (one line; fill values):
+\begin{quote}\itshape
+Contract \((a,b,\varepsilon,p,\alpha)=(\cdots)\); face policy \texttt{pre\_clip} (pivot guarded).
+Budget identity holds (residual \(<10^{-12}\)).
+Regime: \emph{Stable/Watch/Collapse} (min IC \(=\cdots\)).
+Weld ID: \texttt{W-YYYY-MM-DD-\dots}. Manifest: \texttt{(bundle hash)}.
+\end{quote}
+
+\medskip
+This completes the notation and units reference: with these anchors fixed, any audited claim can be read and reproduced without ambiguity.

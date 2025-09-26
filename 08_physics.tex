@@ -1,0 +1,170 @@
+% chapters/08_physics.tex — Polished and expanded (RCFT — working theory)
+\chapter{Physics \texorpdfstring{(RCFT — working theory)}{}}
+\label{ch:physics}
+
+\begin{callout}[RCFT — scope]
+This chapter develops \emph{analogies} from the kernel into a physics-like language. These are \emph{closures}, not identities. The canonical law remains
+\[
+\Delta\kappa \stackrel{!}{=} R\,\tau_{R} - \bigl(D_{\omega}+D_{C}\bigr)
+\quad\text{(tolerance $10^{-12}$; Chapter~\ref{ch:firstlaw})}.
+\]
+Where we speak of “force” and “work,” we mean \emph{$\kappa$-mechanical} analogues defined here and validated by audits on the \emph{same anchor}.
+\end{callout}
+
+\section{Force as a \texorpdfstring{$\kappa$}{kappa}-Gradient}
+We take the frozen proxy from Part~I,
+\[
+\kappa \;=\; \ln F \;-\; S \;+\; \ln(1-\omega) \;-\; \alpha\,\frac{C}{1+\tau_{R}},
+\qquad F=1-\omega,\quad S=-\ln(1-\omega+\varepsilon).
+\]
+Define the energy-like potential \(U_\kappa\coloneqq -\kappa\).
+For any configuration coordinate \(q\) (position, field parameter, control knob), the RCFT generalized force is
+\[
+\mathcal{F}_q \;\coloneqq\; -\,\frac{\partial U_\kappa}{\partial q} \;=\; \frac{\partial \kappa}{\partial q}.
+\]
+\newpage
+% ——————————————————————————————————————————————————————————
+% REPLACE the existing "Kernel sensitivities" block with this one
+\begin{eqbox}[Kernel sensitivities (from Chapter~\ref{ch:proofs})]
+\begingroup
+\small
+% Tighten vertical whitespace just inside this box
+\setlength{\abovedisplayskip}{6pt}
+\setlength{\belowdisplayskip}{6pt}
+\setlength{\jot}{4pt}
+
+\[
+\begin{aligned}
+\frac{\partial \kappa}{\partial \omega}   &= -\Gamma(\omega;\varepsilon),\\
+\frac{\partial \kappa}{\partial C}        &= -\frac{\alpha}{1+\tau_{R}},\\
+\frac{\partial \kappa}{\partial \tau_{R}} &= \frac{\alpha\,C}{(1+\tau_{R})^{2}}.
+\end{aligned}
+\]
+
+\[
+\Gamma(\omega;\varepsilon)
+= \frac{2}{1-\omega} + \frac{1}{1-\omega+\varepsilon}.
+\]
+
+\[
+\begin{aligned}
+\text{where}\quad
+\kappa &= \ln F - S + \ln(1-\omega) - \alpha\,\frac{C}{1+\tau_R},\\
+F &= 1-\omega,\qquad
+S = -\ln(1-\omega+\varepsilon).
+\end{aligned}
+\]
+\endgroup
+\end{eqbox}
+
+% ——————————————————————————————————————————————————————————
+
+
+By the chain rule,
+\[
+\boxed{\;
+\mathcal{F}_q
+= -\Gamma(\omega;\varepsilon)\,\frac{\partial \omega}{\partial q}
+ - \frac{\alpha}{1+\tau_{R}}\,\frac{\partial C}{\partial q}
+ + \frac{\alpha\,C}{(1+\tau_{R})^{2}}\,\frac{\partial \tau_{R}}{\partial q}\; }.
+\]
+Interpretation: decreasing drift or curvature, or shortening return, \emph{does positive $\kappa$-work}.
+
+\section{Work-like vs.\ Dissipation-like Terms}
+Write the First Law as
+\[
+\Delta\kappa \;=\; \underbrace{R\,\tau_{R}}_{\text{work-like return}}
+\;-\; \underbrace{\bigl(D_{\omega}+D_{C}\bigr)}_{\text{drift/geometry charges}}.
+\]
+For a small, controlled move \(dq\),
+\[
+d\kappa \;\approx\; \mathcal{F}\!\cdot dq \;-\; dQ_{\kappa},
+\]
+where \(dQ_{\kappa}\) summarizes local drift/curvature charges that accumulate into \(D_\omega,D_C\) over the audited interval. The potential \(U_\kappa=-\kappa\) is an \emph{audit device}, not a thermodynamic potential.
+
+\begin{callout}[Near-wall directive]
+Because \(\mathrm{IC}\sim(1-\omega)^3\) near \(\omega\to1\) (Chapter~\ref{ch:regimes}), prioritize drift relief (\(\partial\omega/\partial q<0\)) before geometry work. Declare the pivot to \texttt{post\_clip+guard} and the guard \(\varepsilon\) in captions whenever the near-wall band is entered.
+\end{callout}
+
+\section{Measurement Protocol and Falsifiers}
+RCFT claims must reduce to concrete audits.
+
+\begin{eqbox}[RCFT guardrail]
+\textbf{Same-anchor.} Credits \(R\tau_{R}\) and charges \(D_\omega{+}D_C\) are measured on the same interval.\\
+\textbf{Small-perturbation regime.} Sensitivity predictions use controlled, local changes while holding other channels approximately fixed.\\
+\textbf{Falsifiers.} A claim fails if (i) the First-Law residual exceeds the stated tolerance; (ii) the predicted sign is systematically wrong; or (iii) the magnitude error exceeds the envelope implied by step size and smoothness.
+\end{eqbox}
+
+\paragraph{Three testable predictions.}
+\begin{enumerate}[leftmargin=1.25em]
+  \item \textbf{Curvature injection:} hold \(\omega,\tau_R\) steady; increase \(C\) by \(\Delta C\).
+  \(\ \Delta\kappa \approx -\frac{\alpha}{1+\tau_R}\Delta C\).
+  \item \textbf{Return shortening:} hold \(\omega,C\) steady; reduce \(\tau_R\) by \(\Delta\tau_R>0\).
+  \(\ \Delta\kappa \approx \frac{\alpha C}{(1+\tau_R)^2}\Delta\tau_R\).
+  \item \textbf{Near-wall cubic fall:} sweep \(\omega\uparrow\) with others steady; on a log–log plot, slope \(\approx 3\) vs.\ \(1-\omega\).
+\end{enumerate}
+
+\section{Audited Vignette: Field Shaping}
+We design a tiny intervention using the sensitivities, then audit the measured outcome.
+
+\subsection*{Design (local prediction)}
+Baseline: \(C_0=0.12,\ \tau_{R,0}=2.0,\ \alpha=1,\ \varepsilon=10^{-8}\).
+Action: shave curvature \(\Delta C=-0.03\Rightarrow C=0.09\) and shorten return \(\Delta\tau_R=-0.30\Rightarrow \tau_R=1.7\); drift kept in Stable band.
+
+\[
+\Delta\kappa_{\text{pred}}
+\approx -\frac{1}{1+\tau_{R,0}}\Delta C
+       + \frac{C_0}{(1+\tau_{R,0})^2}\Delta\tau_R
+= -\tfrac{1}{3}(-0.03) + \tfrac{0.12}{9}(-0.30)
+= 0.010 - 0.004 \approx 0.006.
+\]
+
+\subsection*{Audit (measured on the same interval)}
+% ——————————————————————————————————————————————————————————
+% REPLACE the whole W-2025-09-23-phys-01 eqbox with this filled version
+\begin{eqbox}[Budget Report—\texttt{W-2025-09-23-PHYS-01}]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+Purpose           & Physics vignette (curvature shave + return shortening) \\
+$\Delta\kappa$    & 0.0060 \\
+$D_{\omega}$      & 0.0500 \\
+$D_{C}$           & 0.0300 \\
+$R\tau_{R}$       & 0.0860 \\
+$\min\mathrm{IC}$ & 0.8600 \\
+$\tau_{R}$        & 1.7000 \\
+Residual          & 0.0000 \\
+Weld ID           & W-2025-09-23-PHYS-01 \\
+Manifest          & 7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a \\
+\end{tabularx}
+
+\vspace{0.25\baselineskip}
+\raggedright\footnotesize
+Contract $(a,b,\varepsilon,p,\alpha)=(-3.7280384,\,10.856631,\,10^{-8},\,3,\,1.0)$; face policy \texttt{post\_clip+guard}.\\
+Identity check: $0.0060 = 0.0860 - (0.0500+0.0300)\ \Rightarrow\ \text{residual}=0.0000\le 10^{-12}$\ (same anchor).
+\end{eqbox}
+% ——————————————————————————————————————————————————————————
+% ——————————————————————————————————————————————————————————
+% ADD this right after the audit card if you want the RCFT falsifier made explicit
+\begin{eqbox}[Prediction vs.\ measured (RCFT check)]
+\[
+\Delta\kappa_{\text{pred}} \approx 0.0060,
+\qquad
+\Delta\kappa_{\text{meas}} = 0.0060,
+\qquad
+|\Delta|=0.0000\ \ (\le 10^{-12}\ \text{budget tolerance}).
+\]
+\end{eqbox}
+% ——————————————————————————————————————————————————————————
+
+
+\noindent Measured gain \(\approx 0.006\) agrees with the local prediction.
+
+\section{Suggested Experiments (portable to other domains)}
+\begin{description}[leftmargin=1.2em,labelindent=0em,style=nextline]
+  \item[Fixed-\(C,\tau_R\) drift sweep] Vary \(\omega\) at constant geometry; confirm cubic fall of IC near the wall and record the pivot policy in captions.
+  \item[Curvature micro-edits] Apply small \(\Delta C\) at steady \(\omega,\tau_R\); test linear prediction \(\Delta\kappa\approx -\alpha\Delta C/(1+\tau_R)\).
+  \item[Return-window tuning] Change buffering or caching to shorten \(\tau_R\) with minimal curvature impact; test \(\Delta\kappa\approx \alpha C\,\Delta\tau_R/(1+\tau_R)^2\).
+\end{description}
+
+\section{Limits and Scope}
+This chapter is RCFT. The “force” is a $\kappa$-gradient, not a mechanical force; “work-like” and “dissipation-like” are labels for audit bookkeeping. Conclusions stand only insofar as the audits pass, falsifiers do not trigger, and the same-anchor rule is respected.

@@ -1,0 +1,102 @@
+% chapters/01_contract.tex — Publication grade (standardized)
+\chapter{Contract \& Invariants}
+\label{ch:contract}
+\addcontentsline{toc}{chapter}{Kernel Contract \& Canon (Frozen)}
+
+\begin{callout}[Frozen defaults]
+Normalization $(a,b)=(0,1)$; face policy \texttt{pre\_clip} with near-wall pivot to \texttt{post\_clip+guard} ($\varepsilon=10^{-8}$). Typed outcomes $\bot\!\mathrm{oor}$ (out-of-domain) and $\infty_{\mathrm{rec}}$ (division-by-zero) are \emph{logged and surfaced in audits}, never coerced to scalars.
+\end{callout}
+
+\begin{eqbox}[Invariant spine]
+\[
+\bigl\{\ \omega,\quad F=1-\omega,\quad S,\quad C,\quad \tau_{R},\quad \mathrm{IC},\quad \kappa=\ln\mathrm{IC}\ \bigr\}.
+\]
+\end{eqbox}
+
+\section{Normalization \& Faces}
+\label{sec:contract-normalization}
+We fix affine normalization
+\[
+y=\frac{x-a}{b},\qquad b>0,
+\]
+with defaults $(a,b)=(0,1)$. The face policy is \texttt{pre\_clip} by default; in a near-wall band we pivot to \texttt{post\_clip+guard} with guard $\varepsilon=10^{-8}$. Typed outcomes remain typed and never leak into arithmetic or captions.
+
+\section{Canonical Proxy \& Symbols}
+\label{sec:contract-canonical}
+The frozen log-integrity proxy is
+\[
+\mathrm{IC}=F\,e^{-S}(1-\omega)\,\exp\!\left(-\alpha\,\frac{C}{1+\tau_{R}}\right),
+\qquad
+\kappa=\ln\mathrm{IC}.
+\]
+Defaults use $F=1-\omega$ and $S=-\ln(1-\omega+\varepsilon)$ near the drift wall.
+
+\begin{eqbox}[Sensitivity snippets (used throughout)]
+\[
+\frac{\partial \kappa}{\partial C}=-\frac{\alpha}{1+\tau_{R}},\qquad
+\frac{\partial \kappa}{\partial \tau_{R}}=\frac{\alpha\,C}{(1+\tau_{R})^{2}},\qquad
+\frac{\partial \kappa}{\partial \omega}= -\Gamma(\omega;\varepsilon),
+\]
+with $\Gamma(\omega;\varepsilon)=\tfrac{2}{1-\omega}-\tfrac{1}{1-\omega+\varepsilon}$ (derivation in Chapter~\ref{ch:proofs}).
+\end{eqbox}
+
+\section{First Law \& Same-Anchor Rule}
+\label{sec:firstlaw-statement}
+\begin{eqbox}[First Law (canonical balance)]
+\[
+\Delta\kappa \stackrel{!}{=} R\,\tau_{R}\;-\;\bigl(D_{\omega}+D_{C}\bigr),
+\qquad \text{residual}\ \le 10^{-12}.
+\]
+\textbf{Same anchor.} Credits $R\tau_{R}$ and charges $D_{\omega}+D_{C}$ are measured on the \emph{same} slice and interval; mixed anchors invalidate the ledger.
+\end{eqbox}
+Definitions and proofs are in Chapter~\ref{ch:proofs}; domain closures are labeled RCFT in later chapters.
+
+\section{Regime Gates \& Joins}
+\label{sec:contract-regimes}
+Regime predicates are frozen defaults; multi-channel labels use \emph{worst-of} aggregation (tie-break by larger $\mathrm{IC}$):
+\begin{itemize}
+  \item \textbf{Stable:} $\omega<0.038,\ F>0.90,\ S<0.15,\ C<0.14$.
+  \item \textbf{Watch:} $0.038\le \omega \le 0.30$.
+  \item \textbf{Collapse:} $\omega\ge 0.30$.
+  \item \textbf{Critical overlay:} apply if $\min\mathrm{IC}<0.30$.
+\end{itemize}
+
+\section{Weld Protocol (Governed Change)}
+\label{sec:contract-weld}
+Any revision is a weld governed by the same-anchor rule:
+\begin{enumerate}
+  \item Announce the change; assign \texttt{weld\_id}.
+  \item Run pre/post contract-tests on the \emph{same} anchor and interval length.
+  \item Enforce $\kappa$-continuity (secant weld, Chapter~\ref{ch:proofs}); publish the weld residual.
+  \item Record the manifest hash and append a Budget Report row.
+\end{enumerate}
+
+\section{Audit Schema \& Caption Discipline}
+\label{sec:contract-audit}
+\begin{eqbox}[Budget Report schema]
+Columns:\ \ $\{\Delta\kappa,\ D_{\omega},\ D_{C},\ R\tau_{R},\ \min\mathrm{IC},\ \tau_{R},\ \text{Weld ID}\}$.
+\end{eqbox}
+
+\begin{eqbox}[Caption checklist (publication standard)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l X@{}}
+Contract keys & $(a,b,\varepsilon,p,\alpha)$ \\
+Face policy   & \texttt{pre\_clip} (pivot noted if used) \\
+Regime        & Stable / Watch / Collapse (+ Critical overlay if $\min\mathrm{IC}<0.30$) \\
+Tolerance     & First-Law residual $\le 10^{-12}$ (or stated value) \\
+Governance    & \texttt{weld\_id}; manifest hash \\
+Anchor note   & Same-anchor declaration (dataset/scope ID) \\
+\end{tabularx}
+\end{eqbox}
+
+\section{RCFT Labeling}
+\label{sec:contract-rcft}
+Non-kernel analogies (e.g., physics-like “force,” institutional “policy loops”) are tagged \emph{RCFT (working theory)} and include falsifiers/tests. Identities remain in this kernel and Chapter~\ref{ch:proofs}.
+
+\section{Timestamp \& Reproducibility Discipline}
+\label{sec:contract-time}
+All timestamps use the America/Chicago time zone and absolute ISO-8601 dates in captions. Figures and tables are local to the project; each audited artifact carries a manifest hash and, where applicable, a weld ID. No external services are assumed for interpretation or verification.
+
+\medskip
+\noindent
+This contract fixes the symbols, predicates, and governance used by the rest of the book. Later chapters may add closures and analogies, but they cannot alter these identities without a weld that preserves $\kappa$-continuity on the same anchor.

@@ -1,0 +1,19 @@
+version: v1.0.0
+build_datetime: "2025-09-25T14:32:00-05:00"
+weld_id: "W-2025-09-25-01"
+anchor_interval: { t0: "2025-07-01T00:00:00-05:00", t1: "2025-09-01T00:00:00-05:00" }
+contract: { a: 0.0, b: 1.0, eps: 1e-8 }
+policy: { face: "pre_clip" }
+files:
+  - { path: "book.pdf", bytes: 1234567, sha256: "<64-hex>" }
+  - { path: "figs/phys01_card.pdf", bytes: 234567, sha256: "<64-hex>" }
+root_hash: "<64-hex>"   # SHA-256 over this canonicalized manifest
+notes: "Release scope and any references"
+"release": {
+  "version": "v1.0",
+  "weld_id": "W-2025-09-23-book-01",
+  "build_date": "2025-09-25",
+  "tz": "America/Chicago",
+  "root_hash": "7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a",
+  "scope": "Kernel finalized; First-Law captions standardized."
+}

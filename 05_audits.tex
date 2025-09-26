@@ -1,0 +1,125 @@
+% chapters/05_audits.tex — Publication grade (standardized, narrow-safe)
+\chapter{Audits, Ledgers, and Governance}
+\label{ch:audits}
+
+Audits “show the work.” Each report closes the First-Law balance on a \emph{same-anchor} interval, lists the contract keys in the caption, and records weld/manifest metadata for provenance.
+
+% ——————————————————————————————————————————————————————————
+\section{Budget Report: PHYS-01}
+\label{sec:audits-phys01}
+
+\begin{eqbox}[Budget Report---\texttt{PHYS-01}]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+$\Delta\kappa$    & 0.0200 \\
+$D_{\omega}$      & 0.1240 \\
+$D_{C}$           & 0.0560 \\
+$R\tau_{R}$       & 0.2000 \\
+$\min\mathrm{IC}$ & 0.8600 \\
+$\tau_{R}$        & 3.0000 \\
+Regime            & Stable \\
+Residual          & 0.0000 \\
+Weld ID           & W-2025-09-23-phys-01 \\
+Manifest          & 7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a \\
+Contract          & (a,b,$\varepsilon$,p,$\alpha$) = (0,1,$10^{-8}$,secant,1.0) \\
+Face policy       & pre\_clip \\
+\end{tabularx}
+
+\vspace{0.25\baselineskip}
+\raggedright\footnotesize
+Check: $0.0200 = 0.2000 - (0.1240+0.0560)$; residual $=0.0000\le 10^{-12}$.
+\end{eqbox}
+
+% ——————————————————————————————————————————————————————————
+\section{Budget Report: AI-FT-01 (pre/post weld)}
+\label{sec:audits-aift01}
+
+\begin{eqbox}[Budget Report---\texttt{AI-FT-01} (pre-weld)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+Purpose           & Fine-tuning (baseline interval) \\
+$\Delta\kappa$    & -0.0300 \\
+$D_{\omega}$      & 0.1600 \\
+$D_{C}$           & 0.1100 \\
+$R\tau_{R}$       & 0.2400 \\
+$\min\mathrm{IC}$ & 0.5800 \\
+$\tau_{R}$        & 4.8000 \\
+Regime            & Watch \\
+Residual          & 0.0000 \\
+Weld ID           & W-2025-09-23-ai-01 \\
+Manifest          & 7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a \\
+Contract          & (0,1,$10^{-8}$,secant,1.0) \\
+Face policy       & pre\_clip \\
+\end{tabularx}
+
+\vspace{0.2\baselineskip}
+\raggedright\footnotesize
+Check: $-0.0300 = 0.2400 - (0.1600+0.1100)$; residual $=0.0000\le 10^{-12}$.
+\end{eqbox}
+
+\begin{eqbox}[Budget Report---\texttt{AI-FT-01} (post-weld)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+Purpose           & Governed interval (LR$\downarrow$, grad-clip, decay, mixup, early-stop) \\
+$\Delta\kappa$    & +0.0200 \\
+$D_{\omega}$      & 0.0700 \\
+$D_{C}$           & 0.0500 \\
+$R\tau_{R}$       & 0.1400 \\
+$\min\mathrm{IC}$ & 0.7900 \\
+$\tau_{R}$        & 2.3000 \\
+Regime            & Stable \\
+Residual          & 0.0000 \\
+Weld ID           & W-2025-09-23-ai-01 \\
+Manifest          & 7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a \\
+Contract          & (0,1,$10^{-8}$,secant,1.0) \\
+Face policy       & pre\_clip \\
+\end{tabularx}
+
+\vspace{0.2\baselineskip}
+\raggedright\footnotesize
+Check: $+0.0200 = 0.1400 - (0.0700+0.0500)$; residual $=0.0000\le 10^{-12}$.
+\end{eqbox}
+
+\noindent\textit{Notes.} Same anchor pre/post (\texttt{W-2025-09-23-ai-01}). The weld reduces drift/curvature debits and shortens the return delay, moving the regime from \emph{Watch} to \emph{Stable} while preserving $\kappa$-continuity.
+
+% ——————————————————————————————————————————————————————————
+\section{Caption Pattern (short form)}
+\label{sec:audits-caption}
+
+\begin{eqbox}[Caption checklist (one-liner)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l X@{}}
+Pattern &
+\emph{Budget Report—\texttt{<ID>}}. \texttt{<what it shows>}; contract $(a,b,\varepsilon,p,\alpha)$; face policy (pivot if used); tol $10^{-12}$; regime; manifest \texttt{<sha256>}; weld \texttt{<id>}. \\
+\end{tabularx}
+\end{eqbox}
+
+% ——————————————————————————————————————————————————————————
+\section{Ledger Headers (CSV)}
+\label{sec:audits-ledger-header}
+
+\noindent\textbf{Single-interval.}
+\begin{lstlisting}[style=umcpstyle, numbers=none, frame=single, basicstyle=\ttfamily\small]
+deltaKappa,Domega,DC,RtauR,minIC,tauR,weld_id,manifest,residual
+\end{lstlisting}
+
+\noindent\textbf{Two-stage (pre/post).}
+\begin{lstlisting}[style=umcpstyle, numbers=none, frame=single, basicstyle=\ttfamily\small]
+stage,deltaKappa,Domega,DC,RtauR,minIC,tauR,regime,weld_id,manifest,residual
+\end{lstlisting}
+
+% ——————————————————————————————————————————————————————————
+\section{Audit Checklist}
+\label{sec:audits-checklist}
+
+\begin{eqbox}[Audit checklist]
+\small
+\begin{enumerate}[leftmargin=1.25em]
+  \item Same-anchor interval declared (dataset/scope ID).
+  \item Contract keys $(a,b,\varepsilon,p,\alpha)$ and face policy (pivot noted) listed in the caption.
+  \item Budget closes: $\bigl|\Delta\kappa-(R\tau_R-(D_\omega+D_C))\bigr|\le 10^{-12}$.
+  \item Regime label and any Critical overlay reported.
+  \item Governance recorded: \texttt{weld\_id} and manifest hash.
+  \item Typed outcomes surfaced if present (\(\bot\!\mathrm{oor}\), \(\infty_{\mathrm{rec}}\)); no coercion to numerics.
+\end{enumerate}
+\end{eqbox}

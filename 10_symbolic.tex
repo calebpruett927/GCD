@@ -1,0 +1,200 @@
+% chapters/10_symbolic.tex — Polished for publication (standard cards, compile-safe)
+\chapter{Symbolic \& Behavioral Systems}
+\label{ch:symbolic}
+
+Symbolic processes (language, logic, memory) are treated as \emph{return-shaped} systems. The kernel remains unchanged: we instrument \(\omega,F,S,C,\tau_{R}\), close the \(\kappa\)-budget, and govern changes as welds. What differs here is the actuator: encoders/decoders, proof steps, and recall schedules.
+
+\section{Language as Compression}
+\label{sec:language-compression}
+
+Language is a compressor: messages map to shorter codes while preserving task-relevant structure.
+Let \(L_0\) be a baseline description length and \(L\) a compressed length; \(\rho=L/L_0\in(0,1]\).
+Aggressive compression typically reduces redundancy (\(S\!\downarrow\)), but can raise brittleness (\(C\!\uparrow\)) and code drift (\(\omega\!\uparrow\)).
+
+\begin{eqbox}[Compression sensitivity (local policy rule)]
+For a one-parameter code family with control \(\lambda\) (higher \(\lambda\Rightarrow\) stronger compression),
+\[
+\frac{\partial \kappa}{\partial \lambda}
+= -\Gamma(\omega;\varepsilon)\frac{\partial \omega}{\partial \lambda}
+  - \frac{\alpha}{1+\tau_R}\frac{\partial C}{\partial \lambda}
+  + \frac{\partial(\ln F - S)}{\partial \lambda}.
+\]
+\textbf{Rule.} Increase \(\lambda\) only while \(\partial \kappa/\partial \lambda>0\) on the measured slice; otherwise, back off and re-encode.
+\end{eqbox}
+
+% ——————————————————————————————————————————————————————————
+% Filled symbolic budget card — LANG-01
+\begin{eqbox}[Budget Report—\texttt{LANG-01} (code tightening slice)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+Purpose           & Code tightening at fixed task fidelity \\
+$\Delta\kappa$    & -0.008495 \\
+$D_{\omega}$      & 0.000000 \\
+$D_{C}$           & — \\
+$R\tau_{R}$       & — \\
+$\min\mathrm{IC}$ & 0.021924 \\
+$\tau_{R}$        & 800.200000 \\
+Regime            & Watch \\
+Residual          & — \\
+Weld ID           & W-2025-09-23-book-01 \\
+Manifest          & 7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a \\
+\end{tabularx}
+
+\vspace{0.35\baselineskip}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+$\omega$ & 0.217988 \\
+$F$      & 0.782012 \\
+$S$      & 0.336741 \\
+$C$      & 0.217847 \\
+$\tau_R$ & 800.200000 \\
+$IC$     & 0.363441 \\
+$\kappa$ & -1.012137 \\
+\end{tabularx}
+
+\vspace{0.25\baselineskip}
+\raggedright\footnotesize
+Contract $(a,b,\varepsilon,p,\alpha)=(-3.7280384,\,10.856631,\,10^{-8},\,3,\,1.0)$; face policy \texttt{post\_clip+guard}.\\
+This card reports invariants and diagnostics; the full First-Law closure row ($R\tau_{R}$, $D_C$, residual) is published in the appendix ledger to avoid duplication.
+\end{eqbox}
+% ——————————————————————————————————————————————————————————
+
+
+\section{Logic as Welded Return}
+\label{sec:logic-weld}
+
+Logical inference is a \emph{return} from premises to conclusions. A proof step is audited as a weld on the same anchor (premise set + normalization).
+
+\begin{proposition}[Logical weld soundness]
+Let \(X_-\) encode premises and \(X_+\) the conclusion after one governed step (secant weld; Chapter~\ref{ch:proofs}). If the Budget residual is within tolerance, then no untyped infinities enter the ledger: any division-by-zero or out-of-domain access is caught as typed \(\infty_{\mathrm{rec}}\) or \(\bot\!\mathrm{oor}\).
+\end{proposition}
+
+\begin{remark}[Consistency by audit]
+A proof sketch is acceptable only if its caption lists contract keys, face policy, tolerance, and weld ID. Missing items imply an unaudited path.
+\end{remark}
+
+% ——————————————————————————————————————————————————————————
+% Filled symbolic budget card — LOGIC-01
+\begin{eqbox}[Budget Report—\texttt{LOGIC-01} (single-step inference)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+Purpose           & Single-step inference on fixed premises (same anchor) \\
+$\Delta\kappa$    & 0.000000 \\
+$D_{\omega}$      & 0.000000 \\
+$D_{C}$           & — \\
+$R\tau_{R}$       & — \\
+$\min\mathrm{IC}$ & 1.000000 \\
+$\tau_{R}$        & 1.999000 \\
+Regime            & Stable \\
+Residual          & — \\
+Weld ID           & W-2025-09-23-book-01 \\
+Manifest          & 7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a \\
+\end{tabularx}
+
+\vspace{0.35\baselineskip}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+$\omega$ & 0.000000 \\
+$F$      & 1.000000 \\
+$S$      & 0.000000 \\
+$C$      & 0.000000 \\
+$\tau_R$ & 1.999000 \\
+$IC$     & 1.000000 \\
+$\kappa$ & 0.000000 \\
+\end{tabularx}
+
+\vspace{0.25\baselineskip}
+\raggedright\footnotesize
+Contract $(a,b,\varepsilon,p,\alpha)=(-3.7280384,\,10.856631,\,10^{-8},\,3,\,1.0)$; face policy \texttt{post\_clip+guard}.\\
+Invariants-only view on the symbolic slice; numeric closure components are maintained in the appendix ledger for this weld family.
+\end{eqbox}
+% ——————————————————————————————————————————————————————————
+
+
+\section{Memory Loops and Homeostasis}
+\label{sec:memory-homeostasis}
+
+Memory is a loop: encode \(\to\) store \(\to\) retrieve \(\to\) re-enter identity. We measure:
+\begin{itemize}[leftmargin=1.25em]
+  \item \textbf{Drift \(\omega\):} change in decoded content across successive recalls on a fixed anchor set.
+  \item \textbf{Return delay \(\tau_R\):} steps to re-attain a fidelity band after a perturbation (context switch, interference).
+  \item \textbf{Curvature \(C\):} brittleness of recall to small cue perturbations (finite-difference probe on the decoder).
+\end{itemize}
+Homeostasis aims to keep the loop in \emph{Stable}: reduce \(\omega\) near-wall, shave \(C\) (redundant cues/templates), shorten \(\tau_R\) (spacing/refresh).
+
+\begin{eqbox}[Homeostatic controller (slice-wise)]
+Given \(\partial\kappa/\partial C=-\alpha/(1+\tau_R)\) and \(\partial\kappa/\partial \tau_R=\alpha C/(1+\tau_R)^2\):
+\begin{enumerate}[leftmargin=1.25em]
+  \item If \(\omega>0.90\): back off (smaller steps / coarser context) before other actions.
+  \item Else if \(|\partial\kappa/\partial C|\) largest: linearize/regularize to reduce \(C\).
+  \item Else: apply recall spacing/priming to reduce \(\tau_R\).
+\end{enumerate}
+Close the budget after each intervention.
+\end{eqbox}
+
+\section{Audited Vignette: Cognitive Loop Before/After a Weld}
+\label{sec:symbolic-vignette}
+
+An agent rehearses a task after a context switch. A governed change adds cue redundancy and a short spacing schedule. We audit the same-length interval \emph{before} and \emph{after} the weld (same anchor: prompt/cue set).
+
+\subsection*{Weld policy}
+\textit{Drift relief:} reduce switch size.\quad
+\textit{Curvature shave:} add redundant cues (two prompts map to one memory).\quad
+\textit{Return shortening:} three-step spaced recall.
+
+\begin{eqbox}[Budget Report—\texttt{W-2025-09-23-COG-01} (pre-weld)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+Purpose           & Cognitive loop after context switch (baseline) \\
+$\Delta\kappa$    & -0.0300 \\
+$D_{\omega}$      & 0.1200 \\
+$D_{C}$           & 0.0700 \\
+$R\tau_{R}$       & 0.1600 \\
+$\min\mathrm{IC}$ & 0.6200 \\
+$\tau_{R}$        & 4.0000 \\
+Regime            & Watch \\
+Residual          & 0.0000 \\
+Weld ID           & W-2025-09-23-COG-01 \\
+Manifest          & 7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a \\
+\end{tabularx}
+
+\vspace{0.2\baselineskip}
+\raggedright\footnotesize
+Check: $-0.0300 = 0.1600 - (0.1200+0.0700)$; residual $=0.0000\le 10^{-12}$.
+\end{eqbox}
+
+
+\begin{eqbox}[Budget Report—\texttt{W-2025-09-23-COG-01} (post-weld)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+Purpose           & Cognitive loop after redundancy + spacing \\
+$\Delta\kappa$    & +0.0100 \\
+$D_{\omega}$      & 0.0600 \\
+$D_{C}$           & 0.0400 \\
+$R\tau_{R}$       & 0.1100 \\
+$\min\mathrm{IC}$ & 0.7800 \\
+$\tau_{R}$        & 2.5000 \\
+Regime            & Stable \\
+Residual          & 0.0000 \\
+Weld ID           & W-2025-09-23-COG-01 \\
+Manifest          & 7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a \\
+\end{tabularx}
+
+\vspace{0.2\baselineskip}
+\raggedright\footnotesize
+Check: $+0.0100 = 0.1100 - (0.0600+0.0400)$; residual $=0.0000\le 10^{-12}$.
+\end{eqbox}
+
+
+\paragraph{Interpretation.}
+The weld reduces drift and curvature debits and shortens the return delay, moving the loop from \emph{Watch} toward \emph{Stable}. With \(\tau_R\!\approx\!4\) pre-weld, \(|\partial\kappa/\partial C|=\alpha/(1+\tau_R)\) is relatively large, so curvature shaving yields early gains; spacing then reduces \(\tau_R\). Near-wall protection remains in force if the switch pushes \(\omega\) upward.
+
+\section{Governance: What Makes a Symbolic Audit Complete}
+\begin{description}[leftmargin=1.2em,labelindent=0em,style=nextline]
+  \item[Same anchor] Encode/decode on an unchanged prompt/cue set; declare any pivot.
+  \item[Typed outcomes] Treat contradictions and division-by-zero as typed; no silent leaks.
+  \item[Caption discipline] Contract keys \((a,b,\varepsilon,p,\alpha)\), face policy, tolerance, weld ID, and manifest are listed on every report.
+  \item[Residuals] First-Law residual \(\le 10^{-12}\) (or stated tolerance) and, where used, a finite-difference rate check (Chapter~\ref{ch:proofs}).
+\end{description}
+
+\medskip
+\noindent
+Symbolic and behavioral systems fit the same ledger because predicates operate on invariants and captions bind governance. Only the actuators change; the budget does not.

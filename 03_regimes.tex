@@ -1,0 +1,133 @@
+% chapters/03_regimes.tex — Publication grade (standardized)
+\chapter{Regimes \& Predicates}
+\label{ch:regimes}
+
+\section{What a regime is (and is not)}
+A \emph{regime} is a short, audit-friendly label assigned to a runtime slice from the tuple
+\[
+(\omega,\;F,\;S,\;C,\;\tau_{R},\;\mathrm{IC}),
+\]
+with an optional \emph{Critical} overlay based on $\mathrm{IC}$. Regimes are \emph{predicates} (closures), not identities: they standardize interpretation across chapters. All balances still obey the First Law (Chapter~\ref{ch:firstlaw}).
+
+\section{Defaults \& interpretation of thresholds}
+We fix the defaults and keep the explanations in prose (tables stay short, captions stay light).
+
+\begin{eqbox}[Default predicates (concise)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l X@{}}
+Stable   & $\omega<0.038,\ F>0.90,\ S<0.15,\ C<0.14$. \\
+Watch    & $0.038\le \omega \le 0.30$ (other channels checked but not decisive). \\
+Collapse & $\omega\ge 0.30$. \\
+Critical overlay & Apply if $\min\mathrm{IC}<0.30$ (shown in captions as “+ Critical”). \\
+Join rule & Worst-of across channels; tie-break by \emph{larger} $\mathrm{IC}$ (healthier tie). \\
+\end{tabularx}
+\end{eqbox}
+
+\paragraph{Why these cuts.}
+\begin{itemize}[leftmargin=1.8em]
+  \item $\omega<0.038$—low-drift basin where small perturbations are recoverable.
+  \item $F>0.90$—prevents quiet failures (low drift but poor fidelity).
+  \item $S<0.15,\, C<0.14$—cap entropic/curvature stress to avoid masked collapses.
+  \item $\mathrm{IC}<0.30$—\emph{Critical} overlay: integrity-poor regardless of other metrics.
+\end{itemize}
+
+\section{Near-wall behavior: $\omega\to 1$}
+As $\omega\to1$, integrity falls \emph{cubicly}. With $F=1-\omega$ and $S=-\ln(1-\omega+\varepsilon)$,
+\[
+\mathrm{IC} \approx (1-\omega)^3\,\exp\!\Bigl(-\alpha\,\frac{C}{1+\tau_R}\Bigr).
+\]
+\textbf{Directive:} close to the wall, reduce $\omega$ \emph{before} geometry work; tiny increases in $\omega$ cause large drops in $\mathrm{IC}$. The guard $\varepsilon>0$ keeps $S$ finite at the wall.
+
+\section{Multi-channel joins}
+Label each channel, then join.
+\begin{definition}[Join rule]
+With per-channel labels ordered $\text{Stable} < \text{Watch} < \text{Collapse}$:
+\begin{enumerate}[leftmargin=1.8em]
+  \item System label is the \emph{worst-of} channel labels.
+  \item Apply \emph{Critical} overlay if any channel has $\min\mathrm{IC}<0.30$.
+  \item On equal labels, prefer the channel with \emph{larger} $\mathrm{IC}$ for display (healthier tie).
+\end{enumerate}
+\end{definition}
+
+\begin{remark}[Algebra of joins]
+Worst-of is idempotent, commutative, and associative; aggregation is order-independent and safe for streaming dashboards.
+\end{remark}
+
+\section{Rotation/anisotropy channels}
+When a channel lives on a manifold $M$ (e.g., phase on $S^1$, attitude on $\mathrm{SO}(3)$), use geodesic steps to define a drift proxy.
+
+\subsection*{$S^1$ (angles)}
+For $\theta_t\in(-\pi,\pi]$,
+\[
+d_{S^1}(\theta_t,\theta_{t-1})
+  = \operatorname{atan2}\!\bigl(\sin(\Delta),\,\cos(\Delta)\bigr),
+  \qquad \Delta = \theta_t - \theta_{t-1}.
+\]
+
+\[
+\delta_t = \frac{\lvert d_{S^1}(\theta_t,\theta_{t-1})\rvert}{\pi} \in [0,1],
+\qquad \omega_{\text{rot}} := \delta_t.
+\]
+
+and $\delta_t=|d_{S^1}|/\pi\in[0,1]$. Use $\omega_{\text{rot}}:=\delta_t$ (or a smoothed version) for gating.
+
+\subsection*{$\mathrm{SO}(3)$ (3D attitudes)}
+For $R_t\in\mathrm{SO}(3)$,
+\[
+\phi_t=\arccos\!\left(\frac{\operatorname{trace}(R_{t-1}^{\top}R_t)-1}{2}\right)\in[0,\pi],
+\]
+normalize $\delta_t=\phi_t/\pi$ and map $\omega_{\text{rot}}:=\delta_t$ into the same predicates. When mixing Euclidean and rotational channels, join by worst-of.
+
+\section{Worked micro-examples}
+Keep numbers compact; explanations stay in the body.
+
+\subsection*{Example A — Stable}
+\[
+\omega=0.020,\quad F=0.95,\quad S=0.10,\quad C=0.08,\quad \tau_{R}=2.0,\quad \mathrm{IC}=0.86.
+\]
+Checks: $\omega<0.038$, $F>0.90$, $S<0.15$, $C<0.14$, $\mathrm{IC}\ge 0.30$.  
+Assignment: \textbf{Stable} (no Critical overlay).
+
+\subsection*{Example B — Collapse + Critical (two channels)}
+\begin{eqbox}[Channel A (symbolic)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+$\omega$ & 0.320 \\
+$F$      & 0.680 \\
+$S$      & 0.200 \\
+$C$      & 0.180 \\
+$\mathrm{IC}$ & 0.340 \\
+$\tau_{R}$ & 2.400 \\
+Label & Collapse (no Critical; $\mathrm{IC}\ge 0.30$) \\
+\end{tabularx}
+\end{eqbox}
+
+\begin{eqbox}[Channel B (rotation)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+$\omega$ & 0.410 \\
+$F$      & 0.590 \\
+$S$      & 0.240 \\
+$C$      & 0.400 \\
+$\mathrm{IC}$ & 0.280 \\
+$\tau_{R}$ & 3.100 \\
+Label & Collapse \textbf{+ Critical} ($\mathrm{IC}<0.30$) \\
+\end{tabularx}
+\end{eqbox}
+
+\begin{eqbox}[Join decision]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l X@{}}
+Rule & Worst-of labels; keep Critical if any channel is Critical. \\
+Result & \textbf{Collapse + Critical}. The rotational channel drives risk; prioritize lowering $\omega$ and $C$ for B or shortening $\tau_R$. \\
+\end{tabularx}
+\end{eqbox}
+
+\section{Decision card (one-scan usage)}
+\begin{enumerate}[leftmargin=1.8em]
+  \item Compute $(\omega,F,S,C,\tau_R,\mathrm{IC})$ per channel.
+  \item Label each channel with the defaults; tag \emph{Critical} if $\mathrm{IC}<0.30$.
+  \item Join by worst-of; retain \emph{Critical} if any channel is Critical.
+  \item Near the drift wall ($\omega>0.90$), treat small increases as high risk ($\mathrm{IC}\sim(1-\omega)^3$).
+  \item Record regime/overlay in the caption alongside the First-Law residual and weld ID.
+\end{enumerate}

@@ -1,0 +1,43 @@
+{
+  "budget_id": "LANG-01",
+  "anchor": {
+    "t0": "unknown \u2014 hint: provide absolute t0 (America/Chicago)",
+    "t1": "unknown \u2014 hint: provide absolute t1 (America/Chicago)"
+  },
+  "contract": {
+    "a": -3.7280384,
+    "b": 10.856631,
+    "eps": 1e-08,
+    "p": 3,
+    "alpha": 1.0
+  },
+  "policy": {
+    "face": "post_clip+guard",
+    "guard": {
+      "eta": 0.015,
+      "K": 3
+    }
+  },
+  "invariants": {
+    "omega": 0.2179876189061606,
+    "F": 0.7820123810938394,
+    "S": 0.33674134977041625,
+    "C": 0.21784708099751296,
+    "tau_R": 800.2,
+    "IC": 0.3634413595485978,
+    "kappa": -1.0121373167593215
+  },
+  "diagnostics": {
+    "Delta_kappa": -0.008494982397522095,
+    "D_omega": 0.0
+  },
+  "gate": "Watch",
+  "weld": {
+    "weld_id": "unknown \u2014 hint: provide",
+    "same_anchor_test_id": "unknown \u2014 hint: provide",
+    "kappa_tol": "unknown \u2014 hint: provide",
+    "residuals_pre": "unknown",
+    "residuals_post": "unknown"
+  },
+  "artifact_sha256": "unknown \u2014 hint: sha256 of rendered card"
+}

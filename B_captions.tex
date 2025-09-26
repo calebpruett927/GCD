@@ -1,0 +1,81 @@
+% chapters/B_captions.tex
+\chapter{Caption Template \& Examples}
+\label{apx:captionsB}
+
+Captions carry the audit essentials so a reader can verify a result without hunting in the text. Every audited figure or table must declare: (i) contract keys and face policy, (ii) First-Law residual, (iii) regime label (and min~IC if used), and (iv) governance IDs (weld, manifest).
+
+\section{One-Line Caption Template (copy/paste)}
+\label{sec:captions-template}
+
+\begin{callout}[Template]
+\textit{Caption.} Contract \((a,b,\varepsilon,p,\alpha)=(\cdots)\); face policy \texttt{pre\_clip} (pivot guarded).
+Budget identity holds (residual \(<10^{-12}\)).
+Regime: \emph{Stable/Watch/Collapse} (min IC \(=\cdots\)).
+Weld ID: \texttt{W-YYYY-MM-DD-\dots}. Manifest: \texttt{(bundle SHA-256)}.
+\end{callout}
+
+\noindent Keep prose tight. Numbers go in the caption; derivations stay in the body.
+
+\section{Examples (ready to use)}
+\label{sec:captions-examples}
+
+\paragraph{Physics (near-wall behaviour).}
+\begin{quote}\itshape
+Near-wall cubic integrity fall: exact IC (guarded \(S\)) and cubic approximation \((1-\omega)^3\).
+Contract \((a,b,\varepsilon,p,\alpha)=(0,1,10^{-8},\text{secant},1.0)\); face policy \texttt{pre\_clip} (pivot guarded).
+Budget identity holds (residual \(<10^{-12}\)).
+Regime: \emph{Watch} near drift wall (min IC \(=0.34\)).
+Weld ID: \texttt{W-2025-09-23-phys-02}. Manifest: \texttt{b6f3…9a}.
+\end{quote}
+
+\paragraph{AI (fine-tuning ledger).}
+\begin{quote}\itshape
+Fine-tuning budget (pre/post weld on the same anchor).
+Contract \((0,1,10^{-8},\text{secant},1.0)\); face policy \texttt{pre\_clip}.
+Residual \(=0.0000\le 10^{-12}\) for both rows.
+Regime: \emph{Pre} Watch \(\to\) \emph{Post} Stable (min IC \(0.58\to0.79\)).
+Weld ID: \texttt{W-2025-09-23-ai-01}. Manifest: \texttt{e2a1…dd}.
+\end{quote}
+
+\paragraph{Legal (precedent update).}
+\begin{quote}\itshape
+Precedent update: clause revision with \(\tau_R\) window preserved.
+Contract \((0,1,10^{-8},\text{secant},1.0)\); face policy \texttt{pre\_clip}.
+Budget identity holds (residual \(<10^{-12}\)).
+Regime: \emph{Watch} \(\to\) \emph{Stable} (min IC \(0.74\to0.88\)).
+Weld ID: \texttt{W-2025-09-23-legal-01}. Manifest: \texttt{7c4e…21}.
+\end{quote}
+
+\section{Keys \& Purpose (quick card)}
+\label{sec:captions-keys}
+
+\begin{table}[h]
+  \centering
+  \caption{Caption keys (short phrases only).}
+  \label{tab:caption-keys}
+  \footnotesize
+  \begingroup\setlength{\tabcolsep}{6pt}
+  \begin{tabularx}{\linewidth}{@{} l l >{\raggedright\arraybackslash}X @{}}
+    \toprule
+    Key & Required & Purpose \\
+    \midrule
+    Contract \((a,b,\varepsilon,p,\alpha)\) & Yes & Reproducible math slice \\
+    Face policy & Yes & Near-wall behavior \\
+    Residual & Yes & First-Law closure \\
+    Regime (+min~IC) & Yes & Predicate snapshot \\
+    Weld ID & Yes & Governance trail \\
+    Manifest hash & Yes & Bundle identity \\
+    \bottomrule
+  \end{tabularx}
+  \endgroup
+\end{table}
+
+\section{Common Caption Pitfalls (and fixes)}
+\label{sec:captions-pitfalls}
+
+\begin{itemize}[leftmargin=1.25em]
+  \item \textbf{Missing residual.} \emph{Fix:} add “Budget identity holds (residual …)”.
+  \item \textbf{No contract keys.} \emph{Fix:} include \((a,b,\varepsilon,p,\alpha)\) explicitly.
+  \item \textbf{Vague regime.} \emph{Fix:} state label and min~IC.
+  \item \textbf{No governance.} \emph{Fix:} add \texttt{weld\_id} and manifest hash.
+\end{itemize}

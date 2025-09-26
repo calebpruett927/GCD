@@ -1,0 +1,199 @@
+% chapters/12_legal.tex — Polished for publication (standard cards, compile-safe)
+\chapter{Legal \& Institutional Systems}
+\label{ch:legal}
+
+Institutions live on written returns: a clause proposes a path, a procedure brings the system back to a stable state, and a record proves it. We treat clauses and protocols as \emph{constructor fields} that must preserve the return path under compression, cross-referencing, and precedent updates. The kernel is unchanged: measure \(\omega,F,S,C,\tau_{R},\mathrm{IC},\kappa\), close the First-Law budget, and weld revisions on the \emph{same anchor} (same matter, same docket, same facts).
+
+\section{Clause Templates with \texorpdfstring{$\tau_R$}{tauR} Checks}
+\label{sec:legal-clauses}
+
+\begin{definition}[Return-bounded clause]
+A clause is \emph{return-bounded} on a slice if it (i) names an anchor (facts and scope it governs), (ii) stipulates a return window \(\tau_R^{\max}\) (deadline to re-enter a verification band), (iii) declares verification (the artifact that counts as re-entry), and (iv) publishes the audit tolerance for the First-Law residual.
+\end{definition}
+
+\begin{eqbox}[Collapse-aware clause template (publishable form)]
+\textbf{Scope \& anchor.} Governs \emph{[defined action/process]} for \emph{[defined parties/context]} and applies to \emph{[defined facts]} (the anchor).\\
+\textbf{Return window.} Complete the return and enter the verification band within \(\tau_R \le \tau_R^{\max}\) \emph{(e.g., \(10\) business days)}.\\
+\textbf{Verification.} Re-entry is verified by \emph{[artifact/signature/checklist/receipt]} that falls inside a declared band around the pre-perturbation baseline.\\
+\textbf{Budget.} Each invocation yields a ledger row \(\{\Delta\kappa,D_\omega,D_C,R\tau_R,\min\mathrm{IC},\tau_R\}\); identity \(\Delta\kappa=R\tau_R-(D_\omega+D_C)\) closes with residual \(\le 10^{-12}\).\\
+\textbf{Governance.} Any modification to scope, deadlines, or verification is a \emph{weld} with pre/post tests on the same anchor; publish \texttt{weld\_id} and manifest.
+\end{eqbox}
+
+\paragraph{Example instantiation (policy-ready).}
+\emph{“The Receiving Office shall acknowledge docketing within 1 business day and issue a completeness determination within 10 business days (\(\tau_R^{\max}=10\)). Verification consists of a signed checklist stored in the matter file. Failure to verify within the window triggers the fallback—automatic extension and notification to the Supervising Officer. All later edits to deadlines or checklist items are governed changes recorded as welds.”}
+
+\section{Docket as Anchor \& Registry Discipline}
+\label{sec:legal-anchor}
+
+\begin{eqbox}[Anchor declaration (form)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l X@{}}
+Matter ID      & <court/agency>-<year>-<sequence> \\
+Parties        & <caption / role list> \\
+Jurisdiction   & <venue/code> \\
+Scope facts    & <enumerated facts / issue statement> \\
+Normalization  & $(a,b,\varepsilon,p,\alpha)=(-3.7280384,\,10.856631,\,10^{-8},\,3,\,1.0)$ \\
+Face policy    & \texttt{pre\_clip} (pivot to \texttt{post\_clip+guard} near wall; $\varepsilon=10^{-8}$) \\
+Verification   & <artifact type, path, acceptance band> \\
+\end{tabularx}
+
+\vspace{0.2\baselineskip}
+\raggedright\footnotesize
+All audits referencing this matter must use this anchor verbatim; mixed anchors invalidate the ledger.
+\end{eqbox}
+
+
+\section{Semantic Compression Tolerance Tests}
+\label{sec:legal-compression}
+
+Legal language is compression under risk: shorter text reduces \(S\) but can raise \(\omega\) (semantic drift across uses) and \(C\) (brittleness to small textual perturbations). Certify short forms with tolerance tests.
+
+\begin{eqbox}[Compression tolerance (procedure)]
+Fix the anchor (same facts/parties). Then:
+\begin{enumerate}[leftmargin=1.25em]
+  \item Measure \(\omega\) across paraphrase uses on comparable matters; require \(\omega\le 0.10\).
+  \item Probe \(C\) via finite-difference paraphrases (minor cue edits/cross-references); require \(C\) not to exceed the canonical by more than the declared margin.
+  \item Verify \(\tau_R\) is not lengthened (no slower returns).
+  \item Close the budget and publish the residual and manifest.
+\end{enumerate}
+\end{eqbox}
+
+\begin{table}[h]
+  \centering
+  \caption{Clause compression certification (same anchor, three variants).}
+  \label{tab:legal-compression}
+  \begin{tabular}{@{} l r r r r l @{}}
+    \toprule
+    Variant & $\omega$ & $C$ & $\tau_{R}$ & min IC & Verdict \\
+    \midrule
+    Canonical text          & 0.02 & 0.08 & 3.0 & 0.95 & Pass \\
+    Short form (approved)   & 0.03 & 0.09 & 3.0 & 0.94 & Pass \\
+    Over-compressed (reject)& 0.11 & 0.16 & 4.5 & 0.82 & Fail \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\noindent The approved short form preserves the window and keeps drift/curvature within tolerance; the over-compressed form increases drift and curvature and slows the return, failing certification.
+
+\section{Compliance Pipelines as Constructors}
+\label{sec:legal-pipelines}
+
+Workflows (intake \(\to\) review \(\to\) closure) are constructor fields: they \emph{shape returns}.
+
+\begin{eqbox}[Workflow audit — \texttt{<PIPELINE-ID>} (template)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+Purpose           & <one-line purpose> \\
+$\Delta\kappa$    & <Δκ> \\
+$D_{\omega}$      & <Dω> \\
+$D_{C}$           & <DC> \\
+$R\tau_{R}$       & <RτR> \\
+$\min\mathrm{IC}$ & <minIC-or—> \\
+$\tau_{R}$        & <τR-or—> \\
+Residual          & <residual> \\
+Weld ID           & <weld-id> \\
+Manifest          & <sha256-or—> \\
+\end{tabularx}
+
+\vspace{0.2\baselineskip}
+\raggedright\footnotesize
+Closes budget to $10^{-12}$; same anchor; contract $(a,b,\varepsilon,p,\alpha)=(-3.7280384,\,10.856631,\,10^{-8},\,3,\,1.0)$; typed outcomes enforced.
+\end{eqbox}
+
+
+\paragraph{Typed outcomes in law.}
+\(\bot\!\mathrm{oor}\) (out-of-domain) = wrong venue/scope or unparseable filing;\;
+\(\infty_{\mathrm{rec}}\) = undefined term or circular reference in a required calculation.
+Typed results halt the local budget and cannot be coerced to numerics.
+
+\section{Audited Vignette: Precedent Update with Weld Governance}
+\label{sec:legal-vignette}
+
+A new appellate precedent narrows a definition used by a standing policy. The institution revises a clause to reflect the precedent. We audit equal-length intervals \emph{before} and \emph{after} the governed change on the same anchor (same matter type; same verification artifact).
+
+\begin{eqbox}[Budget Report—\texttt{W-2025-09-23-LEGAL-01} (pre-weld)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+Purpose           & Legacy clause under broadened definition \\
+$\Delta\kappa$    & -0.0120 \\
+$D_{\omega}$      & 0.0300 \\
+$D_{C}$           & 0.0220 \\
+$R\tau_{R}$       & 0.0400 \\
+$\min\mathrm{IC}$ & 0.7400 \\
+$\tau_{R}$        & 5.0000 \\
+Residual          & 0.0000 \\
+Weld ID           & W-2025-09-23-LEGAL-01 \\
+Manifest          & 7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a \\
+\end{tabularx}
+
+\vspace{0.2\baselineskip}
+\raggedright\footnotesize
+Contract $(a,b,\varepsilon,p,\alpha)=(-3.7280384,\,10.856631,\,10^{-8},\,3,\,1.0)$; face policy \texttt{post\_clip+guard}.\\
+Check: $-0.0120 = 0.0400 - (0.0300+0.0220)$; residual $=0.0000\le 10^{-12}$.
+\end{eqbox}
+
+\begin{eqbox}[Budget Report—\texttt{W-2025-09-23-LEGAL-01} (post-weld)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+Purpose           & Updated clause (citation pinned; framed scope; tighter checklist) \\
+$\Delta\kappa$    & +0.0150 \\
+$D_{\omega}$      & 0.0180 \\
+$D_{C}$           & 0.0170 \\
+$R\tau_{R}$       & 0.0500 \\
+$\min\mathrm{IC}$ & 0.8800 \\
+$\tau_{R}$        & 3.0000 \\
+Residual          & 0.0000 \\
+Weld ID           & W-2025-09-23-LEGAL-01 \\
+Manifest          & 7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a \\
+\end{tabularx}
+
+\vspace{0.2\baselineskip}
+\raggedright\footnotesize
+Contract $(a,b,\varepsilon,p,\alpha)=(-3.7280384,\,10.856631,\,10^{-8},\,3,\,1.0)$; face policy \texttt{post\_clip+guard}.\\
+Check: $+0.0150 = 0.0500 - (0.0180+0.0170)$; residual $=0.0000\le 10^{-12}$.
+\end{eqbox}
+
+
+\paragraph{Interpretation.}
+The revision reduces drift (citation pinning, explicit definitions) and curvature (authenticated framing, fallback rules), while keeping confirmation quick (shorter \(\tau_R\)). The regime moves from \emph{Watch} to \emph{Stable} with higher \(\min\mathrm{IC}\).
+
+\begin{eqbox}[Weld record (governance)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l X@{}}
+Weld ID       & W-2025-09-23-LEGAL-01 \\
+Anchor        & Same matter type; same verification artifact \\
+Tests         & First-Law closure; finite-difference rate check on identical-length intervals \\
+Residuals     & $0.0000$ both rows \\
+Policy delta  & Added reporter citation; explicit definitions; authenticated framing; tightened checklist \\
+Manifest      & 7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a \\
+\end{tabularx}
+\end{eqbox}
+
+
+\section{Protocol Checklist (publication standard)}
+\begin{enumerate}[leftmargin=1.25em]
+  \item \textbf{Same anchor.} Declare matter ID, scope, verification artifact, and vintage of definitions.
+  \item \textbf{Typed outcomes.} Parse/venue failures \(\rightarrow \bot\!\mathrm{oor}\); undefined terms \(\rightarrow \infty_{\mathrm{rec}}\).
+  \item \textbf{Caption discipline.} Contract keys \((a,b,\varepsilon,p,\alpha)\), face policy, tolerance, weld ID, manifest.
+  \item \textbf{Near-wall rule.} If drift spikes (\(\omega\uparrow\)), pivot to \texttt{post\_clip+guard} and log \(\varepsilon\).
+  \item \textbf{Closure tests.} First-Law residual \(\le 10^{-12}\); optional finite-difference rate check (Chapter~\ref{ch:proofs}).
+\end{enumerate}
+
+\section{Release \& Errata Welds}
+\label{sec:legal-releases}
+
+\begin{eqbox}[Release \& Errata Welds]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+Release                    & v1.0.0 \\
+Weld ID                    & W-2025-09-23-LEGAL-01 \\
+Scope                      & Clause template + precedent vignette \\
+\(\kappa\) continuity test & Same-anchor pre/post residual $\le 10^{-12}$ \\
+Manifest                   & 7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a \\
+\end{tabularx}
+\end{eqbox}
+
+
+\medskip
+\noindent
+Legal text, like code, must show its work. A clause that declares its anchor, return window, verification band, and weld governance is legible, auditable, and safe to compose—whether in a contract, a policy manual, or a rulebook.

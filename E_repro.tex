@@ -1,0 +1,79 @@
+% chapters/E_repro.tex
+\chapter{Reproducibility Checklist}
+\label{apx:repro}
+
+This checklist keeps builds deterministic and audits legible. Use it before publishing a release.
+
+\section{Project State (freeze)}
+\label{sec:repro-freeze}
+
+\begin{enumerate}[leftmargin=1.25em]
+  \item \textbf{Single-source bundle.} Text, figures, and local data live in the project; no external services.
+  \item \textbf{Package snapshot.} Fixed TeX packages; no shell-escape; same engine across machines.
+  \item \textbf{Time discipline.} Absolute dates; America/Chicago for all rendered timestamps.
+  \item \textbf{Randomness.} Pseudorandom seeds declared where applicable; deterministic data slices.
+\end{enumerate}
+
+\section{Contract \& Faces (declare)}
+\label{sec:repro-contract}
+
+\begin{enumerate}[leftmargin=1.25em]
+  \item Contract keys \((a,b,\varepsilon,p,\alpha)\) are stated once and referenced in captions.
+  \item Face policy \texttt{pre\_clip}; guarded pivot to \texttt{post\_clip+guard} logged near walls.
+  \item Typed outcomes enabled: \(\bot\!\mathrm{oor}\), \(\infty_{\mathrm{rec}}\) never cast to numbers.
+\end{enumerate}
+
+\section{Audit Artifacts (verify)}
+\label{sec:repro-audits}
+
+\begin{enumerate}[leftmargin=1.25em]
+  \item Budget tables include: \(\Delta\kappa, D_{\omega}, D_{C}, R\tau_{R}, \min\mathrm{IC}, \tau_{R}\).
+  \item First-Law closure: residuals computed and \(|\cdot|\le 10^{-12}\) for every row.
+  \item Regime labels present; worst-of joins applied; Critical overlay if \(\min\mathrm{IC}<0.30\).
+  \item Captions carry contract, face policy, residual, regime, \texttt{weld\_id}, manifest.
+\end{enumerate}
+
+\section{Manifests \& Welds (govern)}
+\label{sec:repro-manifest}
+
+\begin{enumerate}[leftmargin=1.25em]
+  \item Manifest lists all public files with byte counts and SHA-256 hashes.
+  \item Root hash computed from sorted \texttt{path\textbackslash{}0sha256\textbackslash{}n} lines (Appendix~\ref{apx:manifest}).
+  \item \texttt{weld\_id} recorded for the release; pre/post tests on the same anchor pass.
+  \item Any clause/policy/code change is a weld with a ledger row.
+\end{enumerate}
+
+
+\section{Final Gate (publish)}
+\label{sec:repro-publish}
+
+\begin{enumerate}[leftmargin=1.25em]
+  \item PDF regenerates identically from clean build (byte-identical or hash-stable where applicable).
+  \item All tables fit page width (use \texttt{tabularx} where needed); fonts and math are consistent.
+  \item Figures and tables reference local files; no missing assets; no “??” references.
+  \item Release page lists: version, \texttt{weld\_id}, manifest root hash, build date (America/Chicago).
+\end{enumerate}
+
+\section{One-Page Runbook}
+\label{sec:repro-runbook}
+
+\begin{tcolorbox}[umcpbox,title=/release]
+\small\raggedright
+\begin{enumerate}[label=\textbf{/step~\arabic*:},labelwidth=5.8em,labelsep=0.5em,
+  leftmargin=6.3em,itemsep=2pt,topsep=2pt,parsep=0pt]
+  \item Freeze state: record contract keys $(a,b,\varepsilon,p,\alpha)$, face policy, package snapshot, and all seeds. Stamp version and date (America/Chicago).
+  \item Clean rebuild: delete intermediates; compile from clean; ensure no \texttt{??} refs or missing assets.
+  \item Audits: generate Budget CSVs; validate headers per Appendix~\ref{apx:budgetcsv}; compute \texttt{residual} for each row.
+  \item Budget checks: assert $\Delta\kappa = R\tau_{R}-(D_{\omega}+D_{C})$ with $|\text{residual}|\le 10^{-12}$ for every interval; fix any row that fails.
+  \item Regimes \& captions: assign Stable/Watch/Collapse (Critical if $\min\mathrm{IC}<0.30$); update each caption with contract, face policy, residual, regime, \texttt{weld\_id}, and manifest hash.
+  \item Weld governance: run pre/post tests on the same anchor; enforce $\kappa$-continuity; mint \texttt{weld\_id} and note scope of change.
+  \item Manifest: enumerate public files (text/figs/data), compute per-file SHA-256, build JSON/YAML manifests, and compute \texttt{root\_hash} (Appendix~\ref{apx:manifest}).
+  \item Final compile: rebuild PDF; confirm tables fit width (use \texttt{tabularx} where needed) and fonts/math are consistent; fill captions with the actual \texttt{weld\_id} and manifest \texttt{root\_hash}.
+  \item Archive: bundle the project (text, figures, local data, manifests); record bundle size and \texttt{root\_hash}; store alongside a short release note.
+  \item Publish: announce version, \texttt{weld\_id}, \texttt{root\_hash}, and build date; attach sample Budget rows used for verification.
+\end{enumerate}
+\end{tcolorbox}
+
+
+\medskip
+With this checklist, a reader can reconstruct your artifact byte-for-byte and verify every audited claim in minutes, not hours.

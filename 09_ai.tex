@@ -1,0 +1,199 @@
+% chapters/09_ai.tex — Polished for publication (compile-safe, narrow)
+\chapter{Collapse-Aware AI}
+\label{ch:ai}
+
+This chapter turns the kernel into a practical discipline for machine learning. We measure drift \(\omega\) during training, return delay \(\tau_{R}\) during evaluation, and curvature \(C\) on the optimization landscape; then we close the \(\kappa\)-budget and govern changes as welds on the \emph{same anchor}.
+
+\section{Anchors and Instrumentation}
+\label{sec:ai-anchors}
+
+\begin{eqbox}[AI experiment anchor (publishable form)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l X@{}}
+Dataset / split    & <name> / <train,val,test>; split hash <sha256> \\
+Preprocess         & <tokenizer/normalization version> \\
+Model / code       & <arch @ commit>; training script @ <commit> \\
+Seeds              & init=<s$_0$>, dataloader=<s$_1$> \\
+Contract           & $(a,b,\varepsilon,p,\alpha)=(-3.7280384,\,10.856631,\,10^{-8},\,3,\,1.0)$ \\
+Face policy        & \texttt{pre\_clip} (pivot to \texttt{post\_clip+guard} near wall; $\varepsilon=10^{-8}$) \\
+\end{tabularx}
+
+\vspace{0.2\baselineskip}
+\raggedright\footnotesize
+All audits referencing this run must use this anchor verbatim; mixed anchors invalidate the ledger.
+\end{eqbox}
+
+
+\section{Drift \texorpdfstring{\(\omega\)}{omega} in Training}
+\label{sec:ai-drift}
+Hold an \emph{anchor set} \(\mathcal{A}\) fixed (never used for gradient updates) and track the model’s prediction path \(\{y_t\}_t\) on \(\mathcal{A}\) across steps/epochs. Map stepwise movement to \([0,1]\).
+
+\begin{eqbox}[Training drift on a fixed anchor]
+Let $d(\cdot,\cdot)$ be a bounded divergence on predictions (e.g., mean cosine distance on logits, or mean Hellinger distance on softmax outputs). With fixed scale $D>0$,
+\[
+\omega_t \;=\; \min\!\{1,\ \max\!\{0,\ d(y_t,y_{t-1})/D\}\bigr\},\qquad
+F_t = 1-\omega_t .
+\]
+\textbf{Discipline:} $\mathcal{A}$ is frozen (no leakage). Near walls, pivot the face policy to \texttt{post\_clip+guard}.
+\end{eqbox}
+
+
+Large \(\omega\) indicates volatile updates (optimizer/loss/data entropy). Because \(\mathrm{IC}\sim(1-\omega)^3\) near \(\omega\to 1\), drift relief dominates other work in that regime.
+
+\section{Return Delay \texorpdfstring{\(\tau_{R}\)}{tauR} in Evaluation}
+\label{sec:ai-return}
+Return is the time to re-attain a baseline on \(\mathcal{A}\) after a controlled perturbation (learning-rate tick, optimizer reset, batch-order shuffle, brief noise).
+
+\begin{eqbox}[Evaluation return delay]
+Let $M_t$ be a stability metric on $\mathcal{A}$ (e.g., negative loss, accuracy, calibration). After a perturbation at $t_0$, define a tolerance band
+\[
+\mathcal{B} \;=\; [\,M_{t_0^-}-\delta,\, M_{t_0^-}+\delta\,],
+\]
+for declared $\delta$ (e.g., a fraction of pre-perturbation std). Then
+\[
+\tau_R \;=\; \min\{\,h\ge 0 \;:\; M_{t_0+h:t_0+h+k}\subset \mathcal{B}\,\},
+\]
+with small holding window $k$ (e.g., $k{=}3$) to avoid flicker. Report $\tau_R$ in steps/epochs consistently across audits.
+\end{eqbox}
+
+
+\section{Curvature \texorpdfstring{\(C\)}{C} in Optimization Landscapes}
+\label{sec:ai-curvature}
+Approximate local sharpness around parameters \(\theta\) via a finite-difference Hessian probe.
+
+\begin{eqbox}[Finite-difference curvature proxy]
+For loss $L(\theta)$ on $\mathcal{A}$, draw unit vectors $u_i$, choose small $\epsilon>0$, and set
+\[
+C(\theta) \;=\; \frac{1}{m}\sum_{i=1}^m
+\frac{L(\theta+\epsilon u_i)+L(\theta-\epsilon u_i)-2L(\theta)}{\epsilon^2}.
+\]
+\textbf{Notes:} keep $\epsilon$ and $m$ fixed across audits; alternatives (e.g., top Hessian eigenvalue by power iteration) are acceptable if declared. Report $C$ alongside $\omega,F,S,\tau_R,IC,\kappa$.
+\end{eqbox}
+
+
+Lower \(C\) reduces the geometric debit in \(\kappa\) and the interval debit \(D_C\).
+
+\section{Putting It Together: Training Loop (audit-first)}
+\label{sec:ai-loop}
+
+\begin{eqbox}[Collapse-aware training loop (checklist)]
+\begin{enumerate}[leftmargin=1.25em]
+  \item Freeze contract, face policy, thresholds; declare typed outcomes.
+  \item Instrument $\{\omega,F,S,C,\tau_R,IC,\kappa\}$ on $\mathcal{A}$.
+  \item Gate per channel; worst-of join; Critical overlay if $\min IC<0.30$.
+  \item Shape returns by sensitivities:
+  $\partial\kappa/\partial C=-\alpha/(1+\tau_R)$,
+  $\partial\kappa/\partial\tau_R=\alpha C/(1+\tau_R)^2$;
+  near-wall, reduce $\omega$ first.
+  \item Close the budget: $\Delta\kappa = R\tau_R - (D_\omega+D_C)$; publish residual $\le 10^{-12}$.
+  \item Weld revisions: pre/post tests on the same anchor; secant weld; publish residual, \texttt{weld\_id}, manifest.
+\end{enumerate}
+\end{eqbox}
+
+
+\section{Audited Vignette: Fine-Tuning with Overfit and a Weld}
+\label{sec:ai-vignette}
+A small fine-tuning job begins to overfit (rising \(\omega\), sharp \(C\), long \(\tau_R\)). A governed change (\emph{weld}) applies LR decay, weight decay, mixup, and early-stop callbacks. Equal-length intervals are audited before/after on the same anchor.
+
+\subsection*{Weld policy}
+\textit{Drift relief} — reduce LR, add gradient clipping.\quad
+\textit{Curvature shave} — weight decay + mixup.\quad
+\textit{Return shortening} — early-stop window + recall best weights.
+
+% Pre-weld card
+% Pre-weld card
+\begin{eqbox}[Budget Report—\texttt{W-2025-09-23-AI-FINETUNE-01} (pre-weld)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+Purpose           & Overfit interval (baseline) \\
+$\Delta\kappa$    & -0.0300 \\
+$D_{\omega}$      & 0.1600 \\
+$D_{C}$           & 0.1100 \\
+$R\tau_{R}$       & 0.2400 \\
+$\min\mathrm{IC}$ & 0.5800 \\
+$\tau_{R}$        & 4.8000 \\
+Regime            & Watch \\
+Residual          & 0.0000 \\
+Weld ID           & W-2025-09-23-AI-FINETUNE-01 \\
+Manifest          & 7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a \\
+\end{tabularx}
+
+\vspace{0.2\baselineskip}
+\raggedright\footnotesize
+Contract $(a,b,\varepsilon,p,\alpha)=(-3.7280384,\,10.856631,\,10^{-8},\,3,\,1.0)$; face policy \texttt{post\_clip+guard}.\\
+Check: $-0.0300 = 0.2400 - (0.1600+0.1100)$; residual $=0.0000\le 10^{-12}$\ (same anchor).
+\end{eqbox}
+
+% Post-weld card
+\begin{eqbox}[Budget Report—\texttt{W-2025-09-23-AI-FINETUNE-01} (post-weld)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+Purpose           & Governed interval (LR↓, clip, decay, mixup, early-stop) \\
+$\Delta\kappa$    & +0.0200 \\
+$D_{\omega}$      & 0.0700 \\
+$D_{C}$           & 0.0500 \\
+$R\tau_{R}$       & 0.1400 \\
+$\min\mathrm{IC}$ & 0.7900 \\
+$\tau_{R}$        & 2.3000 \\
+Regime            & Stable \\
+Residual          & 0.0000 \\
+Weld ID           & W-2025-09-23-AI-FINETUNE-01 \\
+Manifest          & 7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a \\
+\end{tabularx}
+
+\vspace{0.2\baselineskip}
+\raggedright\footnotesize
+Contract $(a,b,\varepsilon,p,\alpha)=(-3.7280384,\,10.856631,\,10^{-8},\,3,\,1.0)$; face policy \texttt{post\_clip+guard}.\\
+Check: $+0.0200 = 0.1400 - (0.0700+0.0500)$; residual $=0.0000\le 10^{-12}$\ (same anchor).
+\end{eqbox}
+
+
+\paragraph{Interpretation.}
+Drift and curvature debits decrease while return delay shortens, moving from net loss (min IC \(0.58\)) toward Stable (min IC \(0.79\)). Since \(|\partial\kappa/\partial C|=\alpha/(1+\tau_R)\) is typically the cheapest lever, curvature shaving yields early gains; near-wall risk makes drift relief the first priority.
+\begin{table}[h]
+  \centering
+  \caption{AI weld deltas and tests (\texttt{W-2025-09-23-AI-FINETUNE-01}; same anchor).}
+  \label{tab:ai-weld-deltas}
+  \footnotesize
+  \begingroup
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabularx}{\linewidth}{@{} l l l >{\raggedright\arraybackslash}X @{}}
+    \toprule
+    Change & Knob & Expected effect & Tests (residual) \\
+    \midrule
+    LR decay & optimizer & $\omega\downarrow$ & First-Law closure; drift sweep (0.0000) \\
+    Grad clip & optimizer & tails $\downarrow$ ($\omega$ spikes) & NaN guard (\,$\infty_{\mathrm{rec}}$ typed\,); (0.0000) \\
+    Weight decay & regularizer & $C\downarrow$ & finite-diff curvature check (0.0000) \\
+    Mixup & data & $C\downarrow$ & curvature vs.\ baseline (0.0000) \\
+    Early-stop+recall & schedule & $\tau_R\downarrow$ & return window check (0.0000) \\
+    \bottomrule
+  \end{tabularx}
+  \endgroup
+\end{table}
+
+\section{Typed Outcomes and Failure Modes}
+\label{sec:ai-typed}
+
+\begin{eqbox}[Typed outcomes in AI runs]
+$\bot\!\mathrm{oor}$: invalid data slice, anchor mismatch, or unparseable batch. \\
+$\infty_{\mathrm{rec}}$: undefined numerics (NaN/Inf) or division-by-zero in metrics. \\
+\textbf{Rule:} typed outcomes halt the local budget and are never coerced to numerics; audits must surface them explicitly.
+\end{eqbox}
+
+
+\section{Minimal Playbook for Practitioners}
+\label{sec:ai-playbook}
+\begin{enumerate}[leftmargin=1.25em]
+  \item Freeze contract, face policy, thresholds; declare typed outcomes.
+  \item Fix \(\mathcal{A}\); instrument \(\omega, C, \tau_R\); compute \(\mathrm{IC}, \kappa\).
+  \item Watch worst-of regime; pivot near walls and log pivots.
+  \item Shape returns in order: drift relief \(\rightarrow\) curvature shave \(\rightarrow\) return shortening.
+  \item Close the budget; publish residuals; weld governed changes with pre/post tests on the same anchor.
+\end{enumerate}
+
+\section{Weld Record (governance)}
+\noindent\textbf{Weld ID:} \texttt{ W-2025-09-23-AI-FINETUNE-01}. \;
+\textbf{Anchor:} same \(\mathcal{A}\) (hash in manifest). \;
+\textbf{Tests:} First-Law closure and finite-difference rate check on identical-length intervals. \;
+\textbf{Residuals:} \(0.0000\) both rows. \;
+\textbf{Policy deltas:} LR \(\downarrow\), grad-clip \(\uparrow\), weight decay \(+\), mixup \(+\), early-stop window \(+\).

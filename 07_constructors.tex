@@ -1,0 +1,207 @@
+% chapters/07_constructors.tex — Publication grade
+\chapter{Constructor Fields (Architecture)}
+\label{ch:constructors}
+
+Constructors are modules that \emph{shape returns}. They are not merely controllers; they are arrangements (fields) that turn structure, sensing, and policy into the credit term \(R\,\tau_{R}\) that closes the \(\kappa\)-budget on the \emph{same anchor}:
+\[
+\Delta\kappa \stackrel{!}{=} R\,\tau_{R} - \bigl(D_{\omega}+D_{C}\bigr),
+\qquad \text{residual}\le 10^{-12}.
+\]
+This chapter gives the architecture: how to specify, join, and govern constructors in a domain-agnostic way, with \emph{audit-first} cards.
+
+\section{Constructors and Returns}
+\label{sec:constructors-and-returns}
+
+\begin{definition}[Constructor field]
+A \emph{constructor field} \(\mathcal{F}\) is a tuple
+\[
+\mathcal{F} = \bigl(\text{sensors},\ \text{estimator},\ \text{policy},\ \text{actuators}\bigr)
+\]
+operating on a state \(X\) and channels \((\omega,F,S,C,\tau_{R})\), producing a measured return rate \(R\) and a realized delay \(\tau_{R}\).
+Its \textbf{artifact} is a Budget row with \(\{\Delta\kappa,\,D_{\omega},\,D_{C},\,R\tau_{R},\,\min\mathrm{IC},\,\tau_{R}\}\) and weld identifiers.
+\end{definition}
+
+\begin{eqbox}[Constructor interface (I/O)]
+\begin{itemize}[leftmargin=1.25em]
+  \item \textbf{Inputs:} raw streams \(x\), anchors, contract keys \((a,b,\varepsilon,p,\alpha)\).
+  \item \textbf{Estimator:} emits \(\{\omega,\,F,\,S,\,C,\,\tau_{R},\,\mathrm{IC},\,\kappa\}\) per slice.
+  \item \textbf{Policy:} maps predicates \(\{\text{Stable, Watch, Collapse}\}\) to actions.
+  \item \textbf{Outputs:} actuation; measured \(R\) and \(\tau_{R}\); ledger row \(+\) residual.
+  \item \textbf{Guarantees:} typed outcomes respected; welds preserve \(\kappa\) on the \emph{same anchor}.
+\end{itemize}
+\end{eqbox}
+
+\begin{proposition}[Monotone return credit]
+On a fixed slice, holding \(\omega,C,\tau_{R}\) fixed, the First-Law balance is linear in \(R\tau_{R}\): \(\partial \kappa / \partial (R\tau_{R}) = 1\).
+Increasing \(R\) (or decreasing \(\tau_{R}\) with \(R\) fixed) increases \(\kappa\) by the same amount, up to the residual tolerance.
+\end{proposition}
+
+\paragraph{Locality (same anchor).}
+Credits \(R\tau_{R}\) and debits \(D_{\omega}+D_{C}\) must derive from the \emph{same} anchor and interval. Mixed anchors invalidate the ledger.
+
+\paragraph{Face policy.}
+Use \texttt{pre\_clip}; pivot to \texttt{post\_clip+guard} near walls (declare \(\varepsilon\) in captions).
+
+\medskip
+% — Budget cards (narrow, consistent across chapters)
+\begin{eqbox}[\texttt{Budget Report—<APP-ID>} (template)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+Purpose           & <one-line purpose> \\
+$\Delta\kappa$    & <Δκ> \\
+$D_{\omega}$      & <Dω> \\
+$D_{C}$           & <DC> \\
+$R\tau_{R}$       & <RτR> \\
+$\min\mathrm{IC}$ & <minIC-or—> \\
+$\tau_{R}$        & <τR-or—> \\
+Weld ID           & <weld-id> \\
+Manifest          & <sha256-or—> \\
+\end{tabularx}
+
+\vspace{0.25\baselineskip}
+\raggedright\footnotesize
+Closes budget to $10^{-12}$; contract $(a,b,\varepsilon,p,\alpha)=(0,1,10^{-8},\text{secant},1.0)$; face policy \texttt{pre\_clip} (pivot noted if used).
+\end{eqbox}
+% ——————————————————————————————————————————————————————————
+% REPLACE the generic template block with this concrete, filled audit card.
+\begin{eqbox}[Budget Report—\texttt{EXC0} (hello-world, exact)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+Purpose           & Minimal constructor audit (numeric sanity check) \\
+$\Delta\kappa$    & 0.000000000000 \\
+$D_{\omega}$      & 0.015000000000 \\
+$D_{C}$           & 0.010000000000 \\
+$R\tau_{R}$       & 0.025000000000 \\
+$\min\mathrm{IC}$ & — \\
+$\tau_{R}$        & — \\
+Weld ID           & W-2025-09-23-book-01 \\
+Manifest          & 7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a \\
+\end{tabularx}
+
+\vspace{0.25\baselineskip}
+\raggedright\footnotesize
+Verifies $\Delta\kappa = R\tau_{R}-(D_{\omega}+D_{C})$ to $10^{-12}$ on the \emph{same anchor}.
+Contract $(a,b,\varepsilon,p,\alpha)=(-3.7280384,\,10.856631,\,10^{-8},\,3,\,1.0)$; face policy \texttt{pre\_clip} (no pivot required).
+\end{eqbox}
+% ——————————————————————————————————————————————————————————
+
+
+\section{CTMC View for Regime Flow (optional)}
+\label{sec:ctmc}
+Regime labels form a coarse, audit-friendly state machine. Let \(\regvec(t)\in\mathbb{R}^3\) be occupancy over \(\{\text{Stable, Watch, Collapse}\}\), governed by a time-varying \gls{ctmc}:
+\[
+\regimeODE
+\]
+with column-sum constraint \(\onevec^\top \Qgen(t)=\mathbf{0}^\top\).
+Estimating \(\Qgen\) from labeled slices yields:
+\begin{itemize}[leftmargin=1.25em]
+  \item \textbf{Stability budget:} off-diagonals into Collapse quantify pressure; constructor actions aim to decrease those rates.
+  \item \textbf{Control knob:} actions that shorten \(\tau_{R}\) or reduce \(C\) should reduce \([\Qgen]_{\text{Stable}\leftarrow\text{Watch}}\) and \([\Qgen]_{\text{Watch}\leftarrow\text{Collapse}}\).
+  \item \textbf{Long-run mix:} at quasi-stationary periods, \(\Qgen^\top \regvec^\star=\mathbf{0}\), \(\onevec^\top\regvec^\star=1\).
+\end{itemize}
+This optional layer supports dashboards and capacity planning; the kernel budget remains slice-wise and local.
+
+\section{Invariance Under Scaling}
+\label{sec:scale}
+Constructors \emph{must not} depend on arbitrary measurement units. We insist on affine normalization \(y=(x-a)/b,\ b>0\).
+
+\begin{lemma}[Affine invariance of labels and normalization]
+\affineInvariance
+\end{lemma}
+
+\begin{proof}[Sketch]
+\(\xhat=(x-a)/b\) is invariant under \(x'=\alpha x+\beta\) with \((a',b')=(\alpha a+\beta,\alpha b)\).
+All predicates depend on \(\xhat\) and contract thresholds, not on \(x\) directly; regime labels and budget rows are unchanged. \(\square\)
+\end{proof}
+
+\paragraph{Practical note.}
+Constructor policies operate on invariants \((\omega,F,S,C,\tau_{R},\mathrm{IC})\) and weld/ledger metadata. No policy may read unnormalized raw units.
+
+\section{Domain-Agnostic Build Process}
+\label{sec:process}
+A constructor field is built the same way in physics, AI, symbolic systems, cryptography, or law. The steps below are portable.
+
+\subsection*{Step 1 — Freeze the contract}
+Declare \((a,b,\varepsilon,p,\alpha)\), face policy, thresholds \((\omegaStable,\FStable,\SEdge,\CEdge,\ICCritical)\), and the audit tolerance \(10^{-12}\).
+State typed outcomes \(\bot\!\mathrm{oor}\) and \(\infty_{\mathrm{rec}}\).
+
+\subsection*{Step 2 — Instrument the invariants}
+Emit per slice
+\[
+\{\omega,\ F{=}1-\omega,\ S,\ C,\ \tau_{R},\ \mathrm{IC},\ \kappa{=}\ln\mathrm{IC}\}.
+\]
+Guard \(S=-\ln(1-\omega+\varepsilon)\). Publish the estimator version in captions.
+
+\subsection*{Step 3 — Gate and join}
+Label by defaults (Stable/Watch/Collapse; Critical if \(\mathrm{IC}<\ICCritical\)). Join by \emph{worst-of}; break ties by larger \(\mathrm{IC}\).
+
+\subsection*{Step 4 — Shape returns}
+Prioritize by sensitivities:
+\[
+\frac{\partial \kappa}{\partial C}=-\frac{\alpha}{1+\tau_{R}},\qquad
+\frac{\partial \kappa}{\partial \tau_{R}}= \frac{\alpha\,C}{(1+\tau_{R})^2}.
+\]
+First reduce \(C\) (cheapest per unit), then shorten \(\tau_{R}\).
+If drift dominates, reduce \(\omega\) before geometry work near the wall \((\mathrm{IC}\sim(1-\omega)^3)\).
+
+\subsection*{Step 5 — Close the budget}
+For each interval, compute
+\[
+r_{\text{law}} = \Delta\kappa - \Bigl(R\tau_{R} - (D_{\omega}+D_{C})\Bigr),
+\]
+and require \(|r_{\text{law}}|\le 10^{-12}\). Put the residual in the caption.
+
+\subsection*{Step 6 — Weld governed changes}
+Any revision is a weld:
+\begin{enumerate}[leftmargin=1.25em]
+  \item Announce; assign \texttt{weld\_id}.
+  \item Run pre/post contract-tests on the \emph{same anchor}.
+  \item Enforce \(\kappa\)-continuity via the secant weld (Chapter~\ref{ch:proofs}); publish residual.
+  \item Record manifest hash and append a Budget row.
+\end{enumerate}
+
+\subsection*{Step 7 — Regime flow (optional)}
+If you maintain a \gls{ctmc} view, estimate \(\Qgen\) from labeled slices, monitor off-diagonals into Collapse, and tie remediation tickets to rate decreases.
+
+\subsection*{Step 8 — Caption discipline}
+Every audited artifact reports: contract keys \((a,b,\varepsilon,p,\alpha)\), face policy, regime (and Critical overlay if \(\min\mathrm{IC}<\ICCritical\)), \texttt{weld\_id}, manifest hash, and the numerical tolerance used.
+
+\section{Constructor Patterns (portable)}
+
+\subsection*{Pattern A — Return-shortening loop}
+\textbf{Intent:} reduce \(\tau_{R}\) without large curvature costs.
+\begin{itemize}[leftmargin=1.25em]
+  \item Trigger: Watch\(\to\)Collapse transitions rise (CTMC optional) or \(\tau_{R}\) drifts up.
+  \item Action: cache/recall, preconditioning, early-termination heuristics.
+  \item Audit: show \(\Delta\tau_{R}<0\) and \(\Delta\kappa\approx \alpha C\,\Delta\tau_{R}/(1+\tau_{R})^2\).
+\end{itemize}
+
+\subsection*{Pattern B — Curvature shaving}
+\textbf{Intent:} reduce \(C\) at fixed \(\tau_{R}\).
+\begin{itemize}[leftmargin=1.25em]
+  \item Trigger: \(|\partial\kappa/\partial C|=\alpha/(1+\tau_{R})\) large.
+  \item Action: smoothing, regularization, constraint linearization, coarse-to-fine schedules.
+  \item Audit: show \(\Delta C<0\) and \(\Delta\kappa\approx -\alpha\,\Delta C/(1+\tau_{R})\).
+\end{itemize}
+
+\subsection*{Pattern C — Near-wall retreat}
+\textbf{Intent:} reduce \(\omega\) first when \(\omega>0.90\).
+\begin{itemize}[leftmargin=1.25em]
+  \item Trigger: cubic fall risk \(\mathrm{IC}\sim(1-\omega)^3\).
+  \item Action: step-size dampening, back-off schedules, re-centering, constraint relaxation.
+  \item Audit: report pivot to \texttt{post\_clip+guard} and decreasing \(\omega\).
+\end{itemize}
+
+\section{Minimal Constructor Checklist}
+\begin{enumerate}[leftmargin=1.25em]
+  \item Contract frozen; keys and face policy declared.
+  \item Estimator emits \(\{\omega,F,S,C,\tau_{R},\mathrm{IC},\kappa\}\) with guard \(\varepsilon\).
+  \item Regime gating + worst-of joins implemented.
+  \item Actions prioritized by sensitivities; near-wall rule in place.
+  \item First-Law residual recorded \((\le 10^{-12})\).
+  \item Weld protocol enforced; \texttt{weld\_id} + manifest hash published.
+  \item (Optional) \gls{ctmc} generator \(\Qgen\) tracked.
+\end{enumerate}
+
+\section{Constructor Fields Are Portable}
+Because predicates operate on invariants and captions bind governance, the same field patterns serve physics (instrumentation/return paths), AI (regularization/early stop/recall), symbolic systems (consistency checks), cryptography (codec integrity), and legal constructs (clause templates with return windows). Only the \emph{actuators} change; the ledger does not.

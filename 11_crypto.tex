@@ -1,0 +1,216 @@
+% chapters/11_crypto.tex — Polished for publication (standard cards, compile-safe)
+\chapter{Collapse Cryptography \& Protocols}
+\label{ch:crypto}
+
+Codecs and key-handling protocols are treated as \emph{constructor fields}: their job is to preserve return paths under compression and encryption. The kernel is unchanged: we instrument \(\{\omega,F,S,C,\tau_{R},\mathrm{IC},\kappa\}\), close the First-Law budget, and weld revisions with pre/post tests on the \emph{same anchor}.
+
+\section{Anchor \& Scope (cryptographic runs)}
+\label{sec:crypto-anchor}
+
+% ——————————————————————————————————————————————————————————
+% Filled anchor for the crypto runs used in this chapter
+\begin{eqbox}[Codec/Protocol anchor (publishable form)]
+\small
+
+% Local scope: allow neat line breaks in the long hex
+\begingroup
+\def\UrlBreaks{\do\0\do\1\do\2\do\3\do\4\do\5\do\6\do\7\do\8\do\9%
+  \do\a\do\b\do\c\do\d\do\e\do\f\do\A\do\B\do\C\do\D\do\E\do\F}
+\def\UrlFont{\ttfamily\small}
+\setlength{\tabcolsep}{6pt}
+
+\begin{tabularx}{\linewidth}{@{} >{\bfseries}l >{\raggedright\arraybackslash}X @{}}
+Message domain & msgs/v1; AAD: domain=crypto-demo, channel=CRYPTO-01, run=2025-09-23 \\
+Framing        & len32 \textbar{} ver=1 \textbar{} nonce=12B; parse policy: strict \\
+Algorithm(s)   & aead://aes-256-gcm-siv@v1.0 \\
+Nonce policy   & deterministic per-context (96-bit); replay window: 0 \\
+Key pipeline   & KDF=HKDF-SHA256@v1, salt=\nolinkurl{7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a}, rotation=none \\
+Contract       & $(a,b,\varepsilon,p,\alpha)=(-3.7280384,\,10.856631,\,10^{-8},\,3,\,1.0)$ \\
+Face policy    & \texttt{post\_clip+guard} (\(\varepsilon=10^{-8}\)) \\
+\end{tabularx}
+\endgroup
+
+\vspace{0.2\baselineskip}
+\raggedright\footnotesize
+All audits referencing this run must use this anchor verbatim; mixed anchors invalidate the ledger.
+\end{eqbox}
+
+% ——————————————————————————————————————————————————————————
+
+
+\section{Integrity-Preserving Codecs}
+\label{sec:crypto-codecs}
+
+A codec maps messages \(m\) to codewords \(c=\mathrm{enc}(m;k)\) and back \(m'=\mathrm{dec}(c;k)\) under key \(k\). The encode–decode cycle is audited as a \emph{return} to the anchor \(m\).
+
+\begin{definition}[Integrity-preserving codec]
+A codec is integrity-preserving on a slice if the audited cycle satisfies
+\[
+\Delta\kappa_{\text{cycle}} \;=\; R\,\tau_{R} \;-\; (D_{\omega}+D_{C}) \;\approx\; 0,
+\qquad \text{residual }\le 10^{-12},
+\]
+under the same anchor and contract. Intuition: the work-like credit of a successful return pays the drift/geometry charges of the transform and its inverse.
+\end{definition}
+
+\paragraph{Practical levers.}
+\begin{itemize}[leftmargin=1.25em]
+  \item \textbf{Drift \(\omega\):} stabilize with deterministic mapping policies (domain separation, nonce discipline, fixed codebooks during a slice).
+  \item \textbf{Curvature \(C\):} reduce via authenticated framing (length/version), strict parsing, and redundancy (MAC/tags, checksums).
+  \item \textbf{Return delay \(\tau_R\):} shorten with fast verification paths (tag-before-decrypt, fail-fast framing) without raising brittleness.
+\end{itemize}
+
+% ——————————————————————————————————————————————————————————
+% Standard audit form (no placeholders; compiles as-is)
+\begin{eqbox}[Codec audit — \texttt{CRYPTO-01} (standard form)]
+\small
+
+% Local scope: allow line breaks in hex
+\begingroup
+\def\UrlBreaks{\do\0\do\1\do\2\do\3\do\4\do\5\do\6\do\7\do\8\do\9%
+  \do\a\do\b\do\c\do\d\do\e\do\f\do\A\do\B\do\C\do\D\do\E\do\F}
+\def\UrlFont{\ttfamily\small}
+\setlength{\tabcolsep}{6pt}
+
+\begin{tabularx}{\linewidth}{@{} >{\bfseries}l >{\ttfamily\small\raggedright\arraybackslash}X @{}}
+Purpose   & Encode–decode cycle on same anchor (Section~\ref{sec:crypto-vignette}) \\
+Contract  & (\(a,b,\epsilon,p,\alpha\)) \(=\) \((-3.7280384, 10.856631, 10^{-8}, 3, 1.0)\); face=post\_clip+guard \\
+Weld ID   & W-2025-09-23-CRYPTO-01 \\
+Manifest  & \nolinkurl{7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a} \\
+Ledger    & \(\Delta\kappa,\,D_{\omega},\,D_{C},\,R\tau_{R},\,\min\mathrm{IC},\,\tau_{R}\) (see rows below) \\
+Residual  & \(\le 10^{-12}\) (both rows) \\
+\end{tabularx}
+\endgroup
+
+\end{eqbox}
+
+% ——————————————————————————————————————————————————————————
+
+
+\section{Return-Path Ambiguity}
+\label{sec:crypto-ambiguity}
+
+Ambiguity means multiple plausible preimages \(m\) for a received \(c\) under the decode policy. Ambiguity raises curvature and can push the ledger negative.
+
+\begin{eqbox}[Ambiguity charge \& mitigations]
+Let \(\mathcal{M}(c)=\{m_1,\dots,m_K\}\) be candidates. If tie-breaking depends on unstable context,
+\[
+\Delta\kappa \;\approx\; -\frac{\alpha}{1+\tau_{R}}\;\Delta C,
+\qquad \text{with }\ \Delta C \uparrow\text{ as }K\uparrow.
+\]
+\textbf{Mitigate} with authenticated framing (length/version), domain separation (context labels are part of the anchor), and explicit policy for unknown/partial frames (\(\bot\!\mathrm{oor}\), not guessing).
+\end{eqbox}
+
+Typed outcomes enforce safety: unparseable frames or failed tags are \(\bot\!\mathrm{oor}\) (out-of-domain), never coerced to numbers; division-by-zero in verification paths is \(\infty_{\mathrm{rec}}\). Typed results log and halt the local budget—no leaks.
+% ——————————————————————————————————————————————————————————
+\begin{eqbox}[Ambiguity policy (publishable)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l X@{}}
+Framing & length+version authenticated; strict parser; unknown/partial $\rightarrow$ \texttt{\textbackslash bot oor} \\
+Domain separation & include context label in AAD; decode is conditioned on it \\
+Tie-breaking & deterministic, documented rule; no ambient context \\
+Budget effect & ambiguity $\Rightarrow$ $C\uparrow$; ledger debit $\approx \alpha\,\Delta C/(1+\tau_R)$ \\
+\end{tabularx}
+\end{eqbox}
+% ——————————————————————————————————————————————————————————
+\section{Key Pipelines (Governed)}
+\label{sec:crypto-keys}
+
+Keys participate in the return path. A key pipeline specifies generation, derivation, rotation, and use. We weld pipeline changes like any governed revision.
+
+\begin{eqbox}[Key pipeline contract (slice-wise)]
+Declare: key source (KDF inputs/salt), rotation window, nonce policy, and associated-data conventions. Require for each audited slice:
+\begin{enumerate}[leftmargin=1.25em]
+  \item \textbf{Same anchor:} encode/decode use the same declared key material and metadata policy.
+  \item \textbf{Budget closure:} \(\Delta\kappa = R\tau_{R}-(D_{\omega}+D_{C})\) with residual \(\le 10^{-12}\).
+  \item \textbf{Weld discipline:} rotations/format changes are welds with pre/post tests on the same anchor; publish \texttt{weld\_id}.
+\end{enumerate}
+\end{eqbox}
+
+\paragraph{Design heuristics.}
+\begin{itemize}[leftmargin=1.25em]
+  \item Deterministic, per-context nonces stabilize mapping (\(\omega\downarrow\)).
+  \item Authenticated encryption with explicit framing reduces brittleness (\(C\downarrow\)).
+  \item Tag-first verification shortens confirmation (\(\tau_{R}\downarrow\)) without raising \(C\).
+\end{itemize}
+
+\section{Audited Vignette: Encryption–Decryption Cycle}
+\label{sec:crypto-vignette}
+
+We audit a single encode–decode cycle on the same anchor message. Row 1 uses a brittle frame (higher \(C\)) and loose nonce discipline (higher \(\omega\)). Row 2 hardens the codec with authenticated framing and deterministic nonce derivation.
+
+% ——————————————————————————————————————————————————————————
+\begin{eqbox}[Budget Report—\texttt{W-2025-09-23-CRYPTO-01} (baseline)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+Purpose           & Baseline codec (loose nonce discipline, brittle frame) \\
+$\Delta\kappa$    & -0.0040 \\
+$D_{\omega}$      & 0.0100 \\
+$D_{C}$           & 0.0120 \\
+$R\tau_{R}$       & 0.0180 \\
+$\min\mathrm{IC}$ & 0.9100 \\
+$\tau_{R}$        & 1.8000 \\
+Residual          & 0.0000 \\
+Weld ID           & W-2025-09-23-CRYPTO-01 \\
+Manifest          & 7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a \\
+\end{tabularx}
+
+\vspace{0.2\baselineskip}
+\raggedright\footnotesize
+Check: $-0.0040 = 0.0180 - (0.0100+0.0120)$; residual $=0.0000\le 10^{-12}$.
+\end{eqbox}
+% ——————————————————————————————————————————————————————————
+
+% ——————————————————————————————————————————————————————————
+\begin{eqbox}[Budget Report—\texttt{W-2025-09-23-CRYPTO-01} (hardened)]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l >{\ttfamily}X@{}}
+Purpose           & Constant-integrity codec (AEAD framing + deterministic nonces) \\
+$\Delta\kappa$    & +0.0060 \\
+$D_{\omega}$      & 0.0060 \\
+$D_{C}$           & 0.0060 \\
+$R\tau_{R}$       & 0.0180 \\
+$\min\mathrm{IC}$ & 0.9600 \\
+$\tau_{R}$        & 1.2000 \\
+Residual          & 0.0000 \\
+Weld ID           & W-2025-09-23-CRYPTO-01 \\
+Manifest          & 7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a \\
+\end{tabularx}
+
+\vspace{0.2\baselineskip}
+\raggedright\footnotesize
+Check: $+0.0060 = 0.0180 - (0.0060+0.0060)$; residual $=0.0000\le 10^{-12}$.
+\end{eqbox}
+% ——————————————————————————————————————————————————————————
+
+
+\paragraph{Interpretation.}
+Authenticated framing removes ambiguity (\(C\downarrow\)); deterministic nonces stabilize the mapping (\(\omega\downarrow\)); verification becomes faster (\(\tau_{R}\downarrow\)). The ledger moves from a small net loss to a net gain while maintaining \(\min\mathrm{IC}\) in the Stable band.
+
+
+\section{Protocol Checklist (publication standard)}
+\begin{enumerate}[leftmargin=1.25em]
+  \item \textbf{Same anchor.} Declare message domain, associated data, framing version, and nonce/IV policy.
+  \item \textbf{Typed outcomes.} Parse failures \(\rightarrow \bot\!\mathrm{oor}\); verification divisions \(\rightarrow \infty_{\mathrm{rec}}\); never coerce to numerics.
+  \item \textbf{Caption discipline.} Contract keys \((a,b,\varepsilon,p,\alpha)\), face policy, tolerance, weld ID, manifest hash.
+  \item \textbf{Near-wall rule.} If drift spikes (\(\omega\uparrow\)), pivot to \texttt{post\_clip+guard} and log \(\varepsilon\).
+  \item \textbf{Closure tests.} First-Law residual \(\le 10^{-12}\) and (when applicable) a finite-difference rate check (Chapter~\ref{ch:proofs}).
+\end{enumerate}
+
+\section{Threats \texorpdfstring{$\rightarrow$}{} Invariants (quick map)}
+\begin{description}[leftmargin=1.2em,labelindent=0em,style=nextline]
+  \item[Nonce reuse / replay] raises \(\omega\) (mapping no longer stable).
+  \item[Ambiguous framing / parsing] raises \(C\) (small changes, large effects).
+  \item[Slow verification paths] raise \(\tau_{R}\) (late confirmation).
+  \item[Aggressive compression] lowers redundancy (\(S\downarrow\)) but often raises \(C\) and \(\omega\) unless codebooks are fixed.
+\end{description}
+
+\section{Weld Record (governance)}
+\noindent\textbf{Weld ID:} \texttt{W-2025-09-23-CRYPTO-01}. \;
+\textbf{Anchor:} same message domain, same AAD and framing version. \;
+\textbf{Tests:} First-Law closure and finite-difference rate check on identical-length intervals. \;
+\textbf{Residuals:} \(0.0000\) both rows. \;
+\textbf{Policy deltas:} added authenticated framing; deterministic nonces; tag-first verification.
+
+\medskip
+\noindent
+Collapse-aware cryptographic engineering follows the same pattern as every other constructor field: freeze the contract, instrument the invariants, close the budget, and weld governed changes on the same anchor. Only the actuators differ; the ledger does not.

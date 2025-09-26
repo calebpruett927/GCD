@@ -1,0 +1,164 @@
+% chapters/06_proofs.tex — Polished for publication
+\chapter{Proofs \& Edge Cases}
+\label{ch:proofs}
+
+This chapter collects the kernel derivations and the failure-mode guardrails. Identities live here; predicates and thresholds remain in Chapter~\ref{ch:regimes}. The First Law is stated in Chapter~\ref{ch:firstlaw}.
+
+\section{Rate and Transport Identities}
+We begin from the canonical proxy
+\[
+\kappa \;=\; \ln F \;-\; S \;+\; \ln(1-\omega) \;-\; \alpha\,\frac{C}{1+\tau_{R}},
+\]
+with defaults \(F=1-\omega\) and \(S=-\ln(1-\omega+\varepsilon)\) (guard \(\varepsilon>0\), domain \(0\le\omega\le 1-\varepsilon\)).
+
+\begin{eqbox}[Rate identity (chain rule)]
+\[
+\dot{\kappa}
+= \frac{\dot{F}}{F} \;-\; \dot{S} \;-\; \frac{\dot{\omega}}{1-\omega}
+  \;-\; \frac{\alpha}{1+\tau_{R}}\,\dot{C}
+  \;+\; \frac{\alpha C}{(1+\tau_{R})^{2}}\,\dot{\tau}_{R}.
+\]
+Under \(F=1-\omega\) and \(S=-\ln(1-\omega+\varepsilon)\),
+\[
+\dot{\kappa}
+= -\Bigl(\frac{2}{1-\omega} - \frac{1}{1-\omega+\varepsilon}\Bigr)\dot{\omega}
+  - \frac{\alpha}{1+\tau_{R}}\,\dot{C}
+  + \frac{\alpha C}{(1+\tau_{R})^{2}}\,\dot{\tau}_{R}.
+\]
+Define the face coefficient
+\[
+\Gamma(\omega;\varepsilon)\coloneqq \frac{2}{1-\omega} - \frac{1}{1-\omega+\varepsilon},
+\]
+so
+\[
+\boxed{\ \dot{\kappa} = -\Gamma(\omega;\varepsilon)\,\dot{\omega}
+              - \frac{\alpha}{1+\tau_{R}}\,\dot{C}
+              + \frac{\alpha C}{(1+\tau_{R})^{2}}\,\dot{\tau}_{R}\ }.
+\]
+\end{eqbox}
+
+\begin{eqbox}[Sensitivities (partials)]
+\[
+\frac{\partial \kappa}{\partial C} = -\frac{\alpha}{1+\tau_{R}},
+\qquad
+\frac{\partial \kappa}{\partial \tau_{R}} = \frac{\alpha\,C}{(1+\tau_{R})^{2}},
+\qquad
+\frac{\partial \kappa}{\partial \omega} = -\Gamma(\omega;\varepsilon).
+\]
+These expose how geometry and drift load the \(\kappa\)-budget at fixed values of the other variables.
+\end{eqbox}
+
+\begin{eqbox}[Transport identity (geometry bundle)]
+Group the geometry term:
+\[
+\frac{d}{dt}\!\left(\frac{C}{1+\tau_{R}}\right)
+= \frac{\dot{C}}{1+\tau_{R}} - \frac{C\,\dot{\tau}_{R}}{(1+\tau_{R})^{2}}
+= -\frac{1}{\alpha}\,\Gamma(\omega;\varepsilon)\,\dot{\omega}
+  \;-\; \frac{1}{\alpha}\,\dot{\kappa}.
+\]
+Equivalently,
+\[
+\boxed{\ \alpha\,\frac{d}{dt}\!\left(\frac{C}{1+\tau_{R}}\right)
+= -\Gamma(\omega;\varepsilon)\,\dot{\omega} - \dot{\kappa}\ }.
+\]
+\end{eqbox}
+
+\paragraph{Usage.}
+The rate form drives continuous-time audits (finite differences in practice). The transport form isolates the \emph{geometric burden}, \(C/(1+\tau_{R})\), showing how drift and log-integrity co-govern it.
+
+\section{Secant Weld Theorem (Discrete \texorpdfstring{\(\kappa\)}{kappa}-continuity)}
+We formalize the “secant weld” update that preserves \(\kappa\)-continuity on the \emph{same anchor} using values only (no derivatives).
+
+\begin{theorem}[Secant weld]
+Let \(X_a,X_b\) be candidate post-states on the same anchor with values
+\(\kappa_a=\kappa(X_a)\), \(\kappa_b=\kappa(X_b)\); let \(\kappa_-\) be the pre-state value.
+Define the chord \(X(\lambda)=(1-\lambda)X_a+\lambda X_b\) and the secant predictor
+\[
+\widehat{\kappa}(\lambda) \coloneqq (1-\lambda)\kappa_a + \lambda \kappa_b.
+\]
+If \((\kappa_a-\kappa_-)(\kappa_b-\kappa_-)\le 0\) (pre lies between endpoints), then
+\[
+\lambda^\star \;=\; \frac{\kappa_a-\kappa_-}{\kappa_a-\kappa_b}
+\quad\text{yields}\quad
+\widehat{\kappa}(\lambda^\star)=\kappa_-.
+\]
+Moreover, if \(\kappa\) is \(C^1\) along the chord and the chord is short, the weld residual
+\(r=\kappa\bigl(X(\lambda^\star)\bigr)-\kappa_-\) is second-order in the chord length.
+\end{theorem}
+
+\begin{proof}
+By construction,
+\(\widehat{\kappa}(\lambda)=(1-\lambda)(\kappa_a-\kappa_-)+\lambda(\kappa_b-\kappa_-)+\kappa_-\).
+Setting \(\widehat{\kappa}(\lambda)=\kappa_-\) gives the stated \(\lambda^\star\).
+A Taylor expansion of \(\kappa\) along the chord yields
+\(\kappa\bigl(X(\lambda)\bigr)=\widehat{\kappa}(\lambda)+\tfrac{1}{2}\kappa''(\xi)\|X_b-X_a\|^2\)
+for some \(\xi\) on the chord, hence the second-order residual.
+\end{proof}
+
+\begin{remark}[Practical recipe]
+Compute \(\kappa_a,\kappa_b,\kappa_-\). If they bracket \(\kappa_-\), form \(\lambda^\star\) as above and set
+\(X_+=(1-\lambda^\star)X_a+\lambda^\star X_b\).
+Publish \(r=\kappa(X_+)-\kappa_-\) in the Budget Report; in practice \(r\) is tiny (often \(\le 10^{-12}\)).
+\end{remark}
+
+\section{Typed Outcomes, Finite Caps, No-Infinity Leaks}
+\begin{definition}[Typed outcomes]
+Two sentinels are reserved: \(\bot\,\mathrm{oor}\) (out-of-domain) and \(\infty_{\mathrm{rec}}\) (division-by-zero).
+These tokens are \emph{typed} and never cast to scalars; they log and halt the local budget without leaking as untyped infinities.
+\end{definition}
+
+\paragraph{Finite caps.}
+Near the drift wall, set \(S=-\ln(1-\omega+\varepsilon)\) with guard \(\varepsilon>0\) to keep \(S\) finite.
+Consequently the face coefficient \(\Gamma(\omega;\varepsilon)=\tfrac{2}{1-\omega}-\tfrac{1}{1-\omega+\varepsilon}\) is bounded on \([0,1-\varepsilon]\).
+Any attempt to evaluate at \(\omega=1\) yields \(\infty_{\mathrm{rec}}\) (typed), not a numeric infinity.
+
+\paragraph{No-infinity leaks.}
+All algebra consuming a typed outcome must return a typed outcome; no implicit conversions are permitted in audits or captions.
+This rule prevents a single undefined slice from contaminating aggregates.
+
+\section{Near-Wall Pivots (Numerical Example)}
+Fix \((\alpha,C,\tau_{R},\varepsilon)=(1.0,\,0.20,\,2.0,\,10^{-8})\).
+Then \(\exp\!\bigl(-\alpha C/(1+\tau_{R})\bigr)=\exp(-0.2/3)\approx 0.9355\).
+With \(F=1-\omega\) and \(e^{-S}\approx 1-\omega\) for \(\omega\le 1-\varepsilon\), the integrity proxy behaves as
+\(\mathrm{IC}\approx 0.9355\,(1-\omega)^3\).
+
+\begin{table}[h]
+  \centering
+  \caption{Near-wall integrity with guard \(\varepsilon\) (concise).}
+  \begin{tabular}{@{} r r r r @{}}
+    \toprule
+    $\omega$ & $1-\omega$ & $(1-\omega)^3$ & $\mathrm{IC}\approx 0.9355\,(1-\omega)^3$ \\
+    \midrule
+    0.970  & 0.030  & \(2.700\times 10^{-5}\) & \(2.526\times 10^{-5}\) \\
+    0.990  & 0.010  & \(1.000\times 10^{-6}\) & \(9.355\times 10^{-7}\) \\
+    0.995  & 0.005  & \(1.250\times 10^{-7}\) & \(1.169\times 10^{-7}\) \\
+    0.999  & 0.001  & \(1.000\times 10^{-9}\) & \(9.355\times 10^{-10}\) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\noindent\textit{Pivot rule.} When \(\omega\) enters a near-wall band (e.g., \(\omega>0.90\)), pivot the face policy from \texttt{pre\_clip} to \texttt{post\_clip+guard}.
+All budgets and captions must note the pivot and the guard value \(\varepsilon\).
+
+\section{Contract Tests and Tolerances}
+Two tests are mandatory on each audited interval.
+
+\subsection*{Test A — First-Law closure}
+Compute \(\Delta\kappa,\ D_{\omega},\ D_{C},\ R\tau_{R}\) and the residual
+\[
+r_{\text{law}} \;=\; \Delta\kappa - \Bigl(R\tau_{R} - (D_{\omega}+D_{C})\Bigr).
+\]
+\textbf{Pass} if \(|r_{\text{law}}|\le 10^{-12}\) (or the stated tolerance in the caption).
+
+\subsection*{Test B — Rate/transport finite-difference check}
+With step \(h>0\), form one-sided differences for \(\omega,C,\tau_{R}\) and compare the measured
+\(\Delta\kappa/h\) to the rate identity prediction:
+\[
+\frac{\Delta\kappa}{h}\;\stackrel{?}{\approx}\; -\Gamma(\omega;\varepsilon)\,\frac{\Delta\omega}{h}
+              - \frac{\alpha}{1+\tau_{R}}\,\frac{\Delta C}{h}
+              + \frac{\alpha C}{(1+\tau_{R})^{2}}\,\frac{\Delta \tau_{R}}{h}.
+\]
+\textbf{Pass} if the absolute discrepancy is within a declared analysis tolerance (e.g., \(10^{-6}\) to \(10^{-8}\), depending on step size and smoothness).
+
+\medskip
+\noindent\textit{Caption note.} Each audited figure or table must name: contract keys \((a,b,\varepsilon,p,\alpha)\), face policy, regime (and Critical overlay if \(\min\mathrm{IC}<0.30\)), weld\_id, manifest hash, and the numerical tolerance used in these tests.

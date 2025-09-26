@@ -1,0 +1,43 @@
+{
+  "budget_id": "LOGIC-01",
+  "anchor": {
+    "t0": "unknown \u2014 hint: provide absolute t0 (America/Chicago)",
+    "t1": "unknown \u2014 hint: provide absolute t1 (America/Chicago)"
+  },
+  "contract": {
+    "a": -3.7280384,
+    "b": 10.856631,
+    "eps": 1e-08,
+    "p": 3,
+    "alpha": 1.0
+  },
+  "policy": {
+    "face": "post_clip+guard",
+    "guard": {
+      "eta": 0.015,
+      "K": 3
+    }
+  },
+  "invariants": {
+    "omega": 0.0,
+    "F": 1.0,
+    "S": -9.999999889225288e-09,
+    "C": 0.0,
+    "tau_R": 1.999,
+    "IC": 1.0,
+    "kappa": 0.0
+  },
+  "diagnostics": {
+    "Delta_kappa": 0.0,
+    "D_omega": 0.0
+  },
+  "gate": "Stable",
+  "weld": {
+    "weld_id": "unknown \u2014 hint: provide",
+    "same_anchor_test_id": "unknown \u2014 hint: provide",
+    "kappa_tol": "unknown \u2014 hint: provide",
+    "residuals_pre": "unknown",
+    "residuals_post": "unknown"
+  },
+  "artifact_sha256": "unknown \u2014 hint: sha256 of rendered card"
+}

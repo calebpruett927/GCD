@@ -1,0 +1,43 @@
+{
+  "budget_id": "PHYS-01",
+  "anchor": {
+    "t0": "unknown \u2014 hint: provide absolute t0 (America/Chicago)",
+    "t1": "unknown \u2014 hint: provide absolute t1 (America/Chicago)"
+  },
+  "contract": {
+    "a": -3.7280384,
+    "b": 10.856631,
+    "eps": 1e-08,
+    "p": 3,
+    "alpha": 1.0
+  },
+  "policy": {
+    "face": "post_clip+guard",
+    "guard": {
+      "eta": 0.015,
+      "K": 3
+    }
+  },
+  "invariants": {
+    "omega": 0.13333333333333333,
+    "F": 0.8666666666666667,
+    "S": 0.14983,
+    "C": 0.07680500000000001,
+    "tau_R": 2.5,
+    "IC": 0.6229179050078246,
+    "kappa": -0.47334054254079877
+  },
+  "diagnostics": {
+    "Delta_kappa": -0.32024658732518085,
+    "D_omega": 0.1
+  },
+  "gate": "Watch",
+  "weld": {
+    "weld_id": "unknown \u2014 hint: provide",
+    "same_anchor_test_id": "unknown \u2014 hint: provide",
+    "kappa_tol": "unknown \u2014 hint: provide",
+    "residuals_pre": "unknown",
+    "residuals_post": "unknown"
+  },
+  "artifact_sha256": "unknown \u2014 hint: sha256 of rendered card"
+}

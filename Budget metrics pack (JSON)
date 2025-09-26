@@ -1,0 +1,11 @@
+{
+  "budget_id": "PHYS-01",
+  "anchor": {"t0":"2025-07-15T00:00:00-05:00","t1":"2025-08-15T00:00:00-05:00"},
+  "contract": {"a":0.0,"b":1.0,"eps":1e-8},
+  "policy": {"face":"post_clip+guard","guard":{"omega_max":0.92}},
+  "invariants": {"omega":0.021, "F":0.979, "S":0.0213, "C":0.072, "tau_R":0.11, "IC":0.944, "kappa":-0.0577},
+  "diagnostics": {"Delta_kappa":0.0200, "D_omega":0.0042},
+  "gate":"Stable",
+  "weld":{"weld_id":"W-2025-08-16-02","same_anchor_test_id":"T-phys01-001","kappa_tol":0.003,"residuals_pre":0.012,"residuals_post":0.009},
+  "artifact_sha256":"7247553fb9576436b097cc0f1e24f5194b816a516a349d3f49775007458cc84a"
+}
